@@ -1,0 +1,72 @@
+Arguments: 
+  /opt/homebrew/Cellar/node/23.3.0/bin/node /Users/wesleyklein/.yarn/bin/yarn.js
+
+PATH: 
+  /Users/wesleyklein/.yarn/bin:/Users/wesleyklein/.config/yarn/global/node_modules/.bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/wesleyklein/.yarn/bin:/Users/wesleyklein/.config/yarn/global/node_modules/.bin:/Users/wesleyklein/.local/bin:/Users/wesleyklein/.local/bin:/Users/wesleyklein/.local/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  23.3.0
+
+Platform: 
+  darwin arm64
+
+Trace: 
+  Error: ENOENT: no such file or directory, copyfile '/Users/wesleyklein/Library/Caches/Yarn/v6/npm-minimatch-3.1.2-19cd194bfd3e428f049a70817c038d89ab4be35b-integrity/node_modules/minimatch/LICENSE' -> '/Users/wesleyklein/Code/Personal website/personal-website/node_modules/@eslint/eslintrc/node_modules/minimatch/LICENSE'
+
+npm manifest: 
+  {
+    "name": "personal-website",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+      "dev": "vite",
+      "build": "run-p type-check \"build-only {@}\" --",
+      "preview": "vite preview",
+      "test:unit": "vitest",
+      "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
+      "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
+      "build-only": "vite build",
+      "type-check": "vue-tsc --build --force",
+      "lint": "eslint . --fix",
+      "format": "prettier --write src/"
+    },
+    "dependencies": {
+      "pinia": "^2.2.4",
+      "vue": "^3.5.12",
+      "vue-router": "^4.4.5"
+    },
+    "devDependencies": {
+      "@tsconfig/node20": "^20.1.4",
+      "@types/jsdom": "^21.1.7",
+      "@types/node": "^20.16.11",
+      "@vitejs/plugin-vue": "^5.1.4",
+      "@vitest/eslint-plugin": "1.1.7",
+      "@vue/eslint-config-prettier": "^10.0.0",
+      "@vue/eslint-config-typescript": "^14.0.1",
+      "@vue/test-utils": "^2.4.6",
+      "@vue/tsconfig": "^0.5.1",
+      "cypress": "^13.15.0",
+      "eslint": "^9.12.0",
+      "eslint-plugin-cypress": "^4.0.0",
+      "eslint-plugin-vue": "^9.29.0",
+      "jsdom": "^25.0.1",
+      "npm-run-all2": "^6.2.3",
+      "prettier": "^3.3.3",
+      "start-server-and-test": "^2.0.8",
+      "typescript": "~5.5.4",
+      "vite": "^5.4.8",
+      "vite-plugin-vue-devtools": "^7.4.6",
+      "vitest": "^2.1.2",
+      "vue-tsc": "^2.1.6"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

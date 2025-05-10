@@ -124,13 +124,16 @@ function categoryIcon(category: ProjectCategory) {
   @media (min-width: 1100px) {
     display: block;
   }
+}
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
+.background img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
 }
 
 .container {

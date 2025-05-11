@@ -2,9 +2,32 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import iconMoonWhite from '@/assets/iconMoonWhite.png'
 import iconMoonBlack from '@/assets/iconMoonBlack.png'
+import { darkTheme } from 'naive-ui'
+import type { GlobalThemeOverrides } from 'naive-ui'
 
 export const useDarkModeStore = defineStore('darkMode', () => {
   const isDarkMode = ref(true)
+
+  const naiveUiTheme = computed(() => {
+    return isDarkMode.value ? darkTheme : null
+  })
+
+  // Keep inline with '--vt-c-text-dark-1'. Consider an automatic way to do so.
+  const darkThemeTextColor = '#ffffff'
+  const naiveUiDarkThemeOverrides: GlobalThemeOverrides = {
+    common: {
+      textColor1: darkThemeTextColor,
+      textColor2: darkThemeTextColor,
+    },
+  }
+
+  const naiveUiLightThemeOverrides: GlobalThemeOverrides = {}
+
+  const naiveUiThemeOverrides = computed(() => {
+    return isDarkMode.value
+      ? naiveUiDarkThemeOverrides
+      : naiveUiLightThemeOverrides
+  })
 
   const icon = computed(() => {
     return isDarkMode.value ? iconMoonWhite : iconMoonBlack
@@ -31,5 +54,12 @@ export const useDarkModeStore = defineStore('darkMode', () => {
     apply()
   }
 
-  return { isDarkMode, icon, apply, toggle }
+  return {
+    isDarkMode,
+    naiveUiTheme,
+    naiveUiThemeOverrides,
+    icon,
+    apply,
+    toggle,
+  }
 })

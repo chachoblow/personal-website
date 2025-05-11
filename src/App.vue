@@ -2,15 +2,23 @@
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useDarkModeStore } from './stores/darkMode'
+import { NConfigProvider } from 'naive-ui'
+
+const darkModeStore = useDarkModeStore()
 
 onMounted(() => {
-  useDarkModeStore().apply()
+  darkModeStore.apply()
 })
 </script>
 
 <template>
   <main>
-    <RouterView />
+    <NConfigProvider
+      :theme="darkModeStore.naiveUiTheme"
+      :theme-overrides="darkModeStore.naiveUiThemeOverrides"
+    >
+      <RouterView />
+    </NConfigProvider>
   </main>
 </template>
 

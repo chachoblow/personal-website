@@ -1,19 +1,12 @@
 <script setup lang="ts">
-import type { ProjectItem } from '@/models/ProjectCategory'
 import { useProjectStore } from '@/stores/projects'
 
 const itemHovered = defineModel<string>('itemHovered')
-const itemClicked = defineModel<null | ProjectItem>('itemClicked')
 
 const projectStore = useProjectStore()
 
 function updateItemHovered(menuImage?: string) {
   itemHovered.value = menuImage ?? ''
-}
-
-function updateItemClicked(item: ProjectItem) {
-  itemHovered.value = ''
-  itemClicked.value = item
 }
 </script>
 
@@ -24,9 +17,7 @@ function updateItemClicked(item: ProjectItem) {
       :key="category.name"
       class="column-section category"
     >
-      <div class="category__name">
-        {{ category.name }}
-      </div>
+      <div class="category__name">{{ category.name }}</div>
       <ul>
         <li
           v-for="item in category.items"
@@ -35,16 +26,16 @@ function updateItemClicked(item: ProjectItem) {
           @mouseenter="updateItemHovered(item.menuImage)"
           @mouseleave="updateItemHovered()"
         >
-          <div class="item" @click="updateItemClicked(item)">
+          <RouterLink :to="item.route" class="item">
             {{ item.name }}
-          </div>
+          </RouterLink>
         </li>
       </ul>
     </div>
   </div>
 </template>
 
-<style>
+<style scoped>
 .category + .category {
   margin-top: 24px;
 }

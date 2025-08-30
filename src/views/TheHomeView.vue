@@ -1,54 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { ProjectItem } from '@/models/ProjectCategory'
-import TheGalleryOverlay from '@/components/TheGalleryOverlay.vue'
+import { ref } from 'vue'
 import TheHomeViewTitle from '@/components/TheHomeViewTitle.vue'
 import TheHomeViewCategories from '@/components/TheHomeViewCategories.vue'
 import TheHomeViewSecondary from '@/components/TheHomeViewSecondary.vue'
 
-const itemHovered = ref('')
-const itemClicked = ref<null | ProjectItem>(null)
+const itemHovered = ref<string>('')
 
-const showGallery = ref(false)
-
-function openGallery() {
-  if (!itemClicked.value) {
-    return
-  }
-
-  showGallery.value = true
-}
-
-function closeGallery() {
-  showGallery.value = false
-  itemClicked.value = null
-}
-
-const galleryImages = computed(() => {
-  return itemClicked.value?.images ?? []
-})
+const getAltText = (src: string) => `Hover item: ${src}`
 </script>
 
 <template>
   <div class="background">
-    <Transition @leave="openGallery">
-      <img v-if="itemHovered" :src="itemHovered" />
+    <Transition mode="out-in">
+      <img
+        v-if="itemHovered"
+        :src="itemHovered"
+        :alt="getAltText(itemHovered)"
+        loading="lazy"
+      />
     </Transition>
   </div>
-  <Transition>
-    <TheGalleryOverlay
-      v-show="showGallery"
-      :images="galleryImages"
-      @gallery-overlay-close="closeGallery"
-    />
-  </Transition>
   <div class="container">
     <div class="column-group">
       <TheHomeViewTitle />
-      <TheHomeViewCategories
-        v-model:item-hovered="itemHovered"
-        v-model:item-clicked="itemClicked"
-      />
+      <TheHomeViewCategories v-model:item-hovered="itemHovered" />
     </div>
     <div class="column-group">
       <TheHomeViewSecondary />
@@ -57,6 +32,7 @@ const galleryImages = computed(() => {
 </template>
 
 <style>
+/* Background styling */
 .background {
   position: fixed;
   top: 0;
@@ -64,7 +40,6 @@ const galleryImages = computed(() => {
   left: 0;
   right: 0;
   z-index: -1;
-  display: none;
   justify-content: center;
   align-items: center;
   display: none;
@@ -84,6 +59,7 @@ const galleryImages = computed(() => {
   object-fit: contain;
 }
 
+/* Container and layout styling */
 .container {
   display: flex;
   justify-content: unset;
@@ -137,6 +113,7 @@ const galleryImages = computed(() => {
   }
 }
 
+/* Transition effects */
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;

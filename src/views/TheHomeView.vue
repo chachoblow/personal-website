@@ -1,119 +1,58 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import TheHomeViewTitle from '@/components/TheHomeViewTitle.vue'
-import TheHomeViewCategories from '@/components/TheHomeViewCategories.vue'
-import TheHomeViewSecondary from '@/components/TheHomeViewSecondary.vue'
-
-const itemHovered = ref<string>('')
-
-const getAltText = (src: string) => `Hover item: ${src}`
+import { listProjects } from '@/content'
+const projects = listProjects()
 </script>
 
 <template>
-  <div class="background">
-    <Transition mode="out-in">
-      <img
-        v-if="itemHovered"
-        :src="itemHovered"
-        :alt="getAltText(itemHovered)"
-        loading="lazy"
-      />
-    </Transition>
-  </div>
-  <div class="container">
-    <div class="column-group">
-      <TheHomeViewTitle />
-      <TheHomeViewCategories v-model:item-hovered="itemHovered" />
-    </div>
-    <div class="column-group">
-      <TheHomeViewSecondary />
-    </div>
+  <div class="home-view">
+    <section class="home-view__section">
+      <p>Wesley Klein is a maker based in Bay Area, California.</p>
+      <p>
+        His practice moves between engineering and art, spanning code, images,
+        objects, and books, and branching into experiments with printing, wood,
+        and interactive forms.
+      </p>
+      <p>
+        This site collects selected works and ongoing experiments across
+        disciplines, offered as a record and an open sketchbook.
+      </p>
+    </section>
+    <section class="home-view__section">
+      <div class="home-view__section-title">Contact:</div>
+      <ul>
+        <li><a href="mailto:wes@wesklein.com">Email</a></li>
+        <li><a href="https://www.instagram.com/okimwes/">Instagram</a></li>
+        <li><a href="https://github.com/chachoblow">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/wesleyklein">LinkedIn</a></li>
+      </ul>
+    </section>
+    <section class="home-view__section">
+      <div class="home-view__section-title">Work:</div>
+      <ul>
+        <li v-for="p in projects" :key="p.slug">
+          <RouterLink :to="{ name: 'project', params: { slug: p.slug } }">
+            {{ p.title }}
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
-<style>
-/* Background styling */
-.background {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: -1;
-  justify-content: center;
-  align-items: center;
-  display: none;
-
-  @media (min-width: 1100px) {
-    display: block;
-  }
+<style scoped>
+ul {
+  padding: 0;
+  list-style-type: none;
 }
 
-.background img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 50%;
-  height: 50%;
-  object-fit: contain;
+.home-view__section + .home-view__section {
+  margin-top: 14px;
 }
 
-/* Container and layout styling */
-.container {
-  display: flex;
-  justify-content: unset;
-  flex-direction: column;
+.home-view__section-title {
+  margin-bottom: 4px;
 }
 
-.column-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.column-group + .column-group {
-  margin-top: 48px;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-}
-
-.column + .column {
-  margin-left: 0;
-  margin-top: 48px;
-}
-
-.row {
-  width: fit-content;
-}
-
-@media (min-width: 1100px) {
-  .background {
-    display: flex;
-  }
-
-  .container {
-    justify-content: space-between;
-    flex-direction: row;
-  }
-
-  .column-group {
-    flex-direction: row;
-  }
-
-  .column-group + .column-group {
-    margin-top: 0;
-  }
-
-  .column + .column {
-    margin-left: 48px;
-    margin-top: 0;
-  }
-}
-
-/* Transition effects */
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;

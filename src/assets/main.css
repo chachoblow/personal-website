@@ -3,7 +3,7 @@
 :root {
   --color-background: white;
   --color-text: black;
-  --color-link: firebrick;
+  --color-link: #2b6cb0;
   --padding-page: 14px;
 }
 
@@ -33,7 +33,7 @@ body {
 
 a {
   color: var(--color-link);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 a:hover,

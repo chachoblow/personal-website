@@ -1,4 +1,4 @@
-import type { ProjectDoc } from '../types'
+import { type ProjectDoc, BlockType } from '../types'
 import beaconAnimation from '@/assets/projects/beacon/beacon-animation.gif'
 import image01 from '@/assets/projects/beacon/beacon-01.png'
 import image02 from '@/assets/projects/beacon/beacon-02.png'
@@ -16,107 +16,132 @@ import image13 from '@/assets/projects/beacon/beacon-13.png'
 import image14 from '@/assets/projects/beacon/beacon-14.png'
 import image15 from '@/assets/projects/beacon/beacon-15.png'
 import image16 from '@/assets/projects/beacon/beacon-16.png'
+import { DisciplineType } from '../disciplines'
 
 const doc: ProjectDoc = {
   slug: 'beacon',
   title: 'Beacon',
+  summary: 'An ambient lamp for distant presence',
+  disciplineTypes: [
+    DisciplineType.Software,
+    DisciplineType.Object,
+    DisciplineType.Sound,
+  ],
+  crumbs: {
+    segments: [
+      { label: 'Home', to: '/' },
+      { label: 'Beacon', to: '/beacon' },
+    ],
+  },
   blocks: [
     {
-      type: 'crumbs',
-      segments: [
-        { label: 'Home', to: '/' },
-        { label: 'Beacon', to: '/beacon' },
+      type: BlockType.Text,
+      text: 'Beacon reimagines how we maintain connections with distant loved ones through ambient presence. Unlike traditional communication that demands attention, Beacon operates primarily as an elegant lamp in your space—until someone reaches out.',
+    },
+    {
+      type: BlockType.ImageGroup,
+      images: [
+        {
+          src: beaconAnimation,
+          alt: 'Animation of Beacon with different light colors',
+        },
+        { src: image01, alt: 'Front view of Beacon' },
+        {
+          src: image02,
+          alt: 'Front/top view of Beacon',
+        },
+        {
+          src: image03,
+          alt: 'Front/side view of Beacon',
+        },
       ],
     },
     {
-      type: 'text',
-      class: 'info-padding-bottom',
-      content:
-        'Beacon reimagines how we maintain connections with distant loved ones through ambient presence. Unlike traditional communication that demands attention, Beacon operates primarily as an elegant lamp in your space—until someone reaches out.',
+      type: BlockType.Text,
+      text: 'When a family member or friend presses their Beacon device, it instantly transmits a signal to all connected Beacons. Your device responds by gently pulsing with the sender\'s unique color signature—a visual "I\'m thinking of you" that requires no words. Responding is equally effortless: a simple press of your Beacon sends your color to all connected devices, acknowledging their presence with "I see you too."',
     },
     {
-      type: 'image',
-      src: beaconAnimation,
-      alt: 'Animation of Beacon with different light colors',
-    },
+      type: BlockType.ImageGroup,
+      images: [
+        { src: image04, alt: 'Back view of Beacon' },
+        {
+          src: image05,
+          alt: 'Back view of Beacon with back off',
+        },
+        {
+          src: image06,
+          alt: 'Back/side view of Beacon with back off',
+        },
+        {
+          src: image07,
+          alt: 'Side view of Beacon with back off',
+        },
 
-    {
-      type: 'text',
-      class: 'info-padding-top',
-      content:
-        'When a family member or friend presses their Beacon device, it instantly transmits a signal to all connected Beacons. Your device responds by gently pulsing with the sender\'s unique color signature—a visual "I\'m thinking of you" that requires no words. Responding is equally effortless: a simple press of your Beacon sends your color to all connected devices, acknowledging their presence with "I see you too."',
+        {
+          src: image08,
+          alt: 'Front view of Beacon disassembled',
+        },
+      ],
     },
     {
-      type: 'text',
-      class: 'info-padding-bottom',
-      content:
-        'This intentionally minimalist interaction creates meaningful connection without the burden of conversation, perfect for maintaining ambient awareness of loved ones across any distance.',
-    },
-    { type: 'image', src: image01, alt: 'Front view of Beacon' },
-    { type: 'image', src: image02, alt: 'Front/top view of Beacon' },
-    { type: 'image', src: image03, alt: 'Front/side view of Beacon' },
-    { type: 'image', src: image04, alt: 'Back view of Beacon' },
-    { type: 'image', src: image05, alt: 'Back view of Beacon with back off' },
-    {
-      type: 'image',
-      src: image06,
-      alt: 'Back/side view of Beacon with back off',
-    },
-    { type: 'image', src: image07, alt: 'Side view of Beacon with back off' },
-
-    {
-      type: 'text',
-      class: 'info-padding-top',
-      content:
-        'The physical Beacon embodies thoughtful design that balances aesthetics with functionality:',
+      type: BlockType.Text,
+      text: 'This intentionally minimalist interaction creates meaningful connection without the burden of conversation, perfect for maintaining ambient awareness of loved ones across any distance.',
     },
     {
-      type: 'list',
-      class: 'info-padding-bottom',
+      type: BlockType.ImageGroup,
+      images: [
+        {
+          src: image09,
+          alt: 'Front/side view of Beacon disassembled',
+        },
+        {
+          src: image10,
+          alt: 'Front view of Beacon light unit',
+        },
+        {
+          src: image11,
+          alt: 'Front/side view of Beacon light unit',
+        },
+      ],
+    },
+    {
+      type: BlockType.Text,
+      text: 'The physical Beacon embodies thoughtful design that balances aesthetics with functionality, with bullet points covering the ESP-32, acrylic and birch enclosure, potentiometer, and single-button interface.',
+    },
+    {
+      type: BlockType.List,
       items: [
-        'Custom 3D-printed internal enclosure for ESP-32, LED matrix, and controls',
-        'Precision-cut acrylic and birch create a warm diffusion of light',
-        'A potentiometer adjusts brightness for the environment',
-        'A single-button interface keeps the interaction effortless',
+        'ESP-32 microcontroller for Wi-Fi connectivity and control',
+        'Laser-cut acrylic and birch enclosure for a sleek, modern look',
+        'Potentiometer for adjustable brightness control',
+        'Single-button interface for effortless interaction',
       ],
     },
-    { type: 'image', src: image08, alt: 'Front view of Beacon disassembled' },
     {
-      type: 'image',
-      src: image09,
-      alt: 'Front/side view of Beacon disassembled',
-    },
-    { type: 'image', src: image10, alt: 'Front view of Beacon light unit' },
-    {
-      type: 'image',
-      src: image11,
-      alt: 'Front/side view of Beacon light unit',
-    },
-    { type: 'image', src: image12, alt: 'Side view of Beacon light unit' },
-
-    {
-      type: 'text',
-      class: 'info-padding-top',
-      content:
-        "Each Beacon is powered by an ESP-32 microcontroller interfaced with an LED matrix using AdaFruit's comprehensive libraries. The devices communicate through AWS IoT Core's MQTT service, employing a publish-subscribe model:",
-    },
-    {
-      type: 'list',
-      class: 'info-padding-bottom',
-      items: [
-        'On press, a Beacon publishes its id and color signature',
-        'All devices subscribe and respond in real time',
-        'Architecture is reliable at any distance',
+      type: BlockType.ImageGroup,
+      images: [
+        {
+          src: image12,
+          alt: 'Side view of Beacon light unit',
+        },
+        {
+          src: image13,
+          alt: 'Back/side view of Beacon light unit',
+        },
+        {
+          src: image14,
+          alt: 'Back/side view of Beacon light unit disassembled',
+        },
+        {
+          src: image15,
+          alt: 'Back/side view of Beacon housing',
+        },
+        {
+          src: image16,
+          alt: 'Back/side view of Beacon housing',
+        },
       ],
     },
-    { type: 'image', src: image13, alt: 'Back/side view of Beacon light unit' },
-    {
-      type: 'image',
-      src: image14,
-      alt: 'Back/side view of Beacon light unit disassembled',
-    },
-    { type: 'image', src: image15, alt: 'Back/side view of Beacon housing' },
-    { type: 'image', src: image16, alt: 'Back/side view of Beacon housing' },
   ],
 }
 

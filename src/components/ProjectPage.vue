@@ -1,107 +1,143 @@
 <script setup lang="ts">
-import type { ProjectDoc, Block } from '@/content/types'
+import { resolveDisciplineTypes } from '@/content/disciplines'
+import { type ProjectDoc, BlockType } from '@/content/types'
+import { PhArrowArcRight } from '@phosphor-icons/vue'
 
-defineProps<{ project: ProjectDoc }>()
-
-function is<K extends Block['type']>(
-  b: Block,
-  t: K,
-): b is Extract<Block, { type: K }> {
-  return b.type === t
-}
+const { project } = defineProps<{ project: ProjectDoc }>()
+const disciplines = resolveDisciplineTypes(project.disciplineTypes)
 </script>
 
 <template>
   <div class="project-view">
-    <template v-for="(b, i) in project.blocks" :key="i">
-      <nav v-if="is(b, 'crumbs')" class="frame">
-        <div v-for="(seg, j) in b.segments" :key="j">
-          <RouterLink :to="seg.to" class="item">
-            {{ seg.label }}
-          </RouterLink>
-          <span
-            v-if="b.segments.length > 1 && j < b.segments.length - 1"
-            class="nav-separator"
-            >›</span
-          >
-        </div>
-      </nav>
+    <nav aria-label="Breadcrumb">
+      <template v-for="(seg, j) in project.crumbs.segments" :key="j">
+        <RouterLink :to="seg.to">{{ seg.label }}</RouterLink>
+        <PhArrowArcRight
+          v-if="j < project.crumbs.segments.length - 1"
+          :size="16"
+          aria-hidden="true"
+        />
+      </template>
+    </nav>
 
-      <p v-else-if="is(b, 'text')" class="frame" :class="b.class">
-        {{ b.content }}
+    <header>
+      <h1>{{ project.title }}</h1>
+      <p class="disciplines">
+        <template v-for="d in disciplines" :key="d.type">
+          <component :is="d.icon" :size="16" aria-hidden="true" />
+        </template>
+      </p>
+    </header>
+
+    <template v-for="(block, i) in project.blocks" :key="i">
+      <p v-if="block.type === BlockType.Text">
+        {{ block.text }}
       </p>
 
-      <div v-else-if="is(b, 'list')" class="frame" :class="b.class">
-        <ul>
-          <li v-for="(it, k) in b.items" :key="k">{{ it }}</li>
-        </ul>
+      <ul v-else-if="block.type === BlockType.List">
+        <li v-for="(item, k) in block.items" :key="k">{{ item }}</li>
+      </ul>
+
+      <div v-else-if="block.type === BlockType.ImageGroup" class="images">
+        <img
+          v-for="(img, k) in block.images"
+          :key="k"
+          :src="img.src"
+          :alt="img.alt"
+          loading="lazy"
+        />
       </div>
-
-      <figure v-else-if="is(b, 'image')" class="frame">
-        <img :src="b.src" :alt="b.alt" loading="lazy" class="ph" />
-        <figcaption v-if="b.caption" class="caption">
-          {{ b.caption }}
-        </figcaption>
-      </figure>
-
-      <div
-        v-else-if="is(b, 'spacer')"
-        class="frame"
-        :style="{
-          'padding-top':
-            b.size === 'lg' ? '48px' : b.size === 'md' ? '28px' : '14px',
-        }"
-      />
     </template>
   </div>
 </template>
 
 <style scoped>
-.project-view {
-  width: 100%;
-  height: 100%;
+h1 {
+  all: unset;
+  font-weight: 500;
 }
 
-ul {
-  padding-left: var(--padding-page);
+p {
+  margin: 0;
+}
+
+.project-view > * {
+  width: min(var(--page-width-medium), 100%);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--margin-small);
 }
 
 nav {
   display: flex;
+  align-items: center;
+  gap: var(--gap-small);
+  margin-bottom: var(
+    --margin-medium
+  ) !important; /* overrides project-view > * */
 }
 
-.frame {
-  width: 100%;
-  max-width: 700px;
-  padding: 0 0 var(--padding-page) 0;
+.disciplines {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-medium);
+  flex-wrap: wrap;
 }
 
-.frame:last-child {
-  padding-bottom: 0;
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-medium);
+  align-items: flex-start;
+  justify-content: center;
+  width: min(var(--page-width-large), 100%);
 }
 
-.info-padding-top {
-  padding-top: calc(var(--padding-page) * 2);
-}
-
-.info-padding-bottom {
-  padding-bottom: calc(var(--padding-page) * 3);
-}
-
-.nav-separator {
-  padding: 0 4px;
-}
-
-.ph {
-  width: 100%;
-  height: auto;
-  display: block;
+.images img {
+  width: auto;
+  max-width: 100%;
+  max-height: 70vh;
   object-fit: contain;
+  display: block;
 }
 
-.caption {
-  color: var(--muted);
-  margin-top: 6px;
-  font-size: 12px;
+p + p {
+  margin-top: var(--margin-small);
+}
+
+p + ul {
+  margin-top: var(--margin-small);
+}
+
+p + .images {
+  margin-top: var(--margin-medium);
+}
+
+ul + ul {
+  margin-top: var(--margin-small);
+}
+
+ul + p {
+  margin-top: var(--margin-small);
+}
+
+ul + .images {
+  margin-top: var(--margin-medium);
+}
+
+.images + p {
+  margin-top: var(--margin-medium);
+}
+
+.images + ul {
+  margin-top: var(--margin-medium);
+}
+
+.images + .images {
+  margin-top: var(--margin-small);
+}
+
+img + img {
+  margin-top: var(--margin-small);
 }
 </style>

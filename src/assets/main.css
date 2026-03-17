@@ -1,10 +1,30 @@
-@import url('https://use.typekit.net/fmw6qpx.css');
+@font-face {
+  font-family: 'GeneralSans';
+  src: url('@/assets/fonts/GeneralSans-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GeneralSans';
+  src: url('@/assets/fonts/GeneralSans-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --color-background: white;
   --color-text: black;
-  --color-link: #2b6cb0;
-  --padding-page: 14px;
+  --color-link: lightgrey;
+  --page-width-medium: 640px;
+  --page-width-large: 900px;
+  --margin-small: 1lh;
+  --margin-medium: 2lh;
+  --margin-large: 3lh;
+  --gap-small: 4px;
+  --gap-medium: 1ch;
 }
 
 *,
@@ -22,22 +42,27 @@ body {
   transition:
     color 0.5s,
     background-color 0.5s;
-  font-family: 'neue-haas-grotesk-display', sans-serif;
   font-weight: 400;
   font-style: normal;
-  font-size: 14px;
+  font-size: 1rem;
+  font-family: 'GeneralSans', sans-serif;
+  line-height: 28px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: var(--color-link);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text);
   text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--color-link);
+  transition: text-decoration-color 0.15s ease-out;
 }
 
-a:hover,
-a:focus {
-  color: inherit;
-  text-decoration: none;
+a:hover {
+  text-decoration-color: var(--color-text);
 }

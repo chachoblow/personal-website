@@ -1,13 +1,44 @@
-export type Block =
-  | { type: 'text'; content: string; class?: string }
-  | { type: 'image'; src: string; alt: string; caption?: string }
-  | { type: 'list'; items: string[]; class?: string }
-  | { type: 'crumbs'; segments: { label: string; to: string }[] }
-  | { type: 'spacer'; size?: 'sm' | 'md' | 'lg' }
+import type { DisciplineType } from './disciplines'
+
+export interface CrumbsBlock {
+  segments: { label: string; to: string }[]
+}
+
+export enum BlockType {
+  Text = 'text',
+  List = 'list',
+  Image = 'image',
+  ImageGroup = 'image-group',
+}
+
+export interface TextBlock {
+  type: BlockType.Text
+  text: string
+}
+
+export interface ListBlock {
+  type: BlockType.List
+  items: string[]
+}
+
+export interface ImageBlock {
+  type: BlockType.Image
+  src: string
+  alt: string
+}
+
+export interface ImageGroupBlock {
+  type: BlockType.ImageGroup
+  images: Omit<ImageBlock, 'type'>[]
+}
+
+export type Block = TextBlock | ListBlock | ImageBlock | ImageGroupBlock
 
 export interface ProjectDoc {
   slug: string
   title: string
-  year?: number | string
+  summary: string
+  disciplineTypes: DisciplineType[]
+  crumbs: CrumbsBlock
   blocks: Block[]
 }

@@ -65,24 +65,22 @@ p {
   margin: 0;
 }
 
+.project-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--margin-small);
+}
+
 .project-view > * {
   width: min(var(--page-width-medium), 100%);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 nav {
   display: flex;
   align-items: center;
   gap: var(--gap-small);
-  margin-bottom: var(--margin-medium);
-}
-
-header,
-p,
-ul,
-.images {
-  margin-bottom: var(--margin-small);
+  margin-bottom: calc(var(--margin-medium) - var(--margin-small));
 }
 
 .disciplines {
@@ -99,6 +97,7 @@ ul,
   align-items: flex-start;
   justify-content: center;
   width: min(var(--page-width-large), 100%);
+  margin-block: calc(var(--margin-medium) - var(--margin-small));
 }
 
 .images img {
@@ -107,42 +106,6 @@ ul,
   max-height: 70vh;
   object-fit: contain;
   display: block;
-}
-
-p + p {
-  margin-top: var(--margin-small);
-}
-
-p + ul {
-  margin-top: var(--margin-small);
-}
-
-p + .images {
-  margin-top: var(--margin-medium);
-}
-
-ul + ul {
-  margin-top: var(--margin-small);
-}
-
-ul + p {
-  margin-top: var(--margin-small);
-}
-
-ul + .images {
-  margin-top: var(--margin-medium);
-}
-
-.images + p {
-  margin-top: var(--margin-medium);
-}
-
-.images + ul {
-  margin-top: var(--margin-medium);
-}
-
-.images + .images {
-  margin-top: var(--margin-small);
 }
 
 img + img {

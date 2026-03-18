@@ -162,8 +162,8 @@ ul {
 .project-enter-active,
 .project-leave-active {
   transition:
-    opacity 150ms ease-out,
-    transform 150ms ease-out;
+    opacity 200ms ease-out,
+    transform 200ms ease-out;
 }
 
 .project-leave-active {
@@ -185,16 +185,16 @@ ul {
 
 button {
   cursor: pointer;
-  background: white;
+  background: var(--color-background);
   border: 1px solid var(--color-link);
   border-radius: 40px;
-  padding: 8px 16px;
+  padding: 4px 12px;
   font-size: inherit;
   font-family: inherit;
   color: inherit;
   transition:
-    background 0.15s ease-out,
-    color 0.15s ease-out;
+    background 0.2s ease-out,
+    color 0.2s ease-out;
   display: flex;
   align-items: center;
   gap: var(--gap-medium);

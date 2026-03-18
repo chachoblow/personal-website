@@ -3,7 +3,6 @@ import type { DisciplineType } from './disciplines'
 export enum BlockType {
   Text = 'text',
   List = 'list',
-  Image = 'image',
   ImageGroup = 'image-group',
 }
 
@@ -17,18 +16,12 @@ export interface ListBlock {
   items: string[]
 }
 
-export interface ImageBlock {
-  type: BlockType.Image
-  src: string
-  alt: string
-}
-
 export interface ImageGroupBlock {
   type: BlockType.ImageGroup
-  images: Omit<ImageBlock, 'type'>[]
+  images: { src: string; alt: string }[]
 }
 
-export type Block = TextBlock | ListBlock | ImageBlock | ImageGroupBlock
+export type Block = TextBlock | ListBlock | ImageGroupBlock
 
 export interface ProjectDoc {
   slug: string

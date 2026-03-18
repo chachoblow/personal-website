@@ -14,12 +14,6 @@ const doc: ProjectDoc = {
   summary:
     'A small-form comic about living with anxiety and hardships that follow you everywhere',
   disciplineTypes: [DisciplineType.Print],
-  crumbs: {
-    segments: [
-      { label: 'Home', to: '/' },
-      { label: 'Branches', to: '/branches' },
-    ],
-  },
   blocks: [
     {
       type: BlockType.Text,

@@ -1,9 +1,5 @@
 import type { DisciplineType } from './disciplines'
 
-export interface CrumbsBlock {
-  segments: { label: string; to: string }[]
-}
-
 export enum BlockType {
   Text = 'text',
   List = 'list',
@@ -39,6 +35,5 @@ export interface ProjectDoc {
   title: string
   summary: string
   disciplineTypes: DisciplineType[]
-  crumbs: CrumbsBlock
   blocks: Block[]
 }

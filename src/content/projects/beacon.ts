@@ -27,12 +27,6 @@ const doc: ProjectDoc = {
     DisciplineType.Object,
     DisciplineType.Sound,
   ],
-  crumbs: {
-    segments: [
-      { label: 'Home', to: '/' },
-      { label: 'Beacon', to: '/beacon' },
-    ],
-  },
   blocks: [
     {
       type: BlockType.Text,

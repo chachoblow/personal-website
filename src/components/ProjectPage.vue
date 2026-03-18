@@ -5,15 +5,19 @@ import { PhArrowArcRight } from '@phosphor-icons/vue'
 
 const { project } = defineProps<{ project: ProjectDoc }>()
 const disciplines = resolveDisciplineTypes(project.disciplineTypes)
+const crumbs = [
+  { label: 'Home', to: '/' },
+  { label: project.title, to: `/${project.slug}` },
+]
 </script>
 
 <template>
   <div class="project-view">
     <nav aria-label="Breadcrumb">
-      <template v-for="(seg, j) in project.crumbs.segments" :key="j">
+      <template v-for="(seg, j) in crumbs" :key="j">
         <RouterLink :to="seg.to">{{ seg.label }}</RouterLink>
         <PhArrowArcRight
-          v-if="j < project.crumbs.segments.length - 1"
+          v-if="j < crumbs.length - 1"
           :size="16"
           aria-hidden="true"
         />
@@ -65,16 +69,20 @@ p {
   width: min(var(--page-width-medium), 100%);
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: var(--margin-small);
 }
 
 nav {
   display: flex;
   align-items: center;
   gap: var(--gap-small);
-  margin-bottom: var(
-    --margin-medium
-  ) !important; /* overrides project-view > * */
+  margin-bottom: var(--margin-medium);
+}
+
+header,
+p,
+ul,
+.images {
+  margin-bottom: var(--margin-small);
 }
 
 .disciplines {

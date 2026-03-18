@@ -12,12 +12,6 @@ const doc: ProjectDoc = {
   title: 'Cyclux',
   summary: 'A small-form comic about finding the light in dark times',
   disciplineTypes: [DisciplineType.Print],
-  crumbs: {
-    segments: [
-      { label: 'Home', to: '/' },
-      { label: 'Cyclux', to: '/cyclux' },
-    ],
-  },
   blocks: [
     {
       type: BlockType.Text,

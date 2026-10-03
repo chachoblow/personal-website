@@ -14,7 +14,7 @@ pnpm preview  # Preview production build
 
 ## Project context
 
-This is a migration of a Vue 3 + Vite personal portfolio site to Astro 6. The old site lives at `../personal-website` and can be used as a reference. The Astro site is the active project going forward.
+This is Wesley Klein's personal website, built with Astro 6 and MDX. It replaced an earlier Vue 3 + Vite version of the same site, which has been retired — this repository is the only version.
 
 The site belongs to Wesley Klein — a portfolio and project showcase. The design is intentionally minimal ("a record and open sketchbook"). No CSS frameworks, no component libraries.
 

@@ -1,0 +1,104 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Icon from '../components/Icon.astro'
+import ImageGroup from '../components/ImageGroup.astro'
+import type { IconName } from '../components/icons'
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects')
+  return projects.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+
+const disciplineIconMap: Record<string, IconName> = {
+  software: 'laptop',
+  object: 'sphere',
+  sound: 'wave-sine',
+  image: 'rectangle',
+  print: 'book',
+}
+---
+
+<BaseLayout title={`${entry.data.title} — Wesley Klein`} description={entry.data.summary}>
+  <div class="project-view">
+    <nav aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <Icon name="arrow-arc-right" size={16} aria-hidden="true" />
+      <span>{entry.data.title}</span>
+    </nav>
+
+    <header>
+      <h1>{entry.data.title}</h1>
+      <p class="disciplines">
+        {entry.data.disciplines.map(d => (
+          <Icon name={disciplineIconMap[d]} size={16} aria-hidden="true" />
+        ))}
+      </p>
+    </header>
+
+    <div class="content">
+      <Content components={{ ImageGroup }} />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    all: unset;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .project-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--margin-small);
+  }
+
+  .project-view > * {
+    width: min(var(--page-width-medium), 100%);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-small);
+    margin-bottom: calc(var(--margin-medium) - var(--margin-small));
+  }
+
+  .disciplines {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-medium);
+    flex-wrap: wrap;
+  }
+
+  .project-view > .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--margin-small);
+    width: min(var(--page-width-large), 100%);
+  }
+
+  .project-view > .content :global(p),
+  .project-view > .content :global(ul) {
+    width: min(var(--page-width-medium), 100%);
+    margin: 0;
+  }
+
+  .project-view > .content :global(ul) {
+    list-style: disc;
+    padding-left: 1.5em;
+  }
+</style>

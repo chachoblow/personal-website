@@ -1,0 +1,55 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  images: { src: string; alt: string }[];
+}
+
+const { images } = Astro.props;
+
+const allImages = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/projects/**/*",
+);
+
+const resolvedImages = await Promise.all(
+  images.map(async ({ src, alt }) => {
+    const key = `/src/assets${src}`;
+    const loader = allImages[key];
+    if (!loader) throw new Error(`ImageGroup: image not found at ${key}`);
+    return { src: (await loader()).default, alt };
+  }),
+);
+---
+
+<div class="images">
+  {
+    resolvedImages.map((img) => (
+      <Image src={img.src} alt={img.alt} loading="lazy" />
+    ))
+  }
+</div>
+
+<style>
+  .images {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--gap-medium);
+    row-gap: var(--margin-small);
+    align-items: flex-start;
+    justify-content: center;
+    width: min(var(--page-width-large), 100%);
+    margin-left: auto;
+    margin-right: auto;
+    margin-block: calc(var(--margin-medium) - var(--margin-small));
+  }
+
+  .images img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+    display: block;
+  }
+</style>

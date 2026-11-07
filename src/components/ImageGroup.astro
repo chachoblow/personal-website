@@ -44,6 +44,22 @@ const resolvedImages = await Promise.all(
     margin-block: calc(var(--margin-medium) - var(--margin-small));
   }
 
+  /* Margins don't collapse in the flex-column content, so back-to-back groups
+     would get both margins plus the gap. Drop both, leaving only the content
+     gap, which equals the row gap between images, so they read as one group. */
+  .images:has(+ .images) {
+    margin-bottom: 0;
+  }
+
+  .images + .images {
+    margin-top: 0;
+  }
+
+  /* With no text above, start where text would, right under the title. */
+  .images:first-child {
+    margin-top: 0;
+  }
+
   .images img {
     width: auto;
     max-width: 100%;

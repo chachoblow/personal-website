@@ -15,16 +15,23 @@
 }
 
 :root {
-  --color-background: white;
-  --color-text: black;
-  --color-link: lightgrey;
-  --page-width-medium: 640px;
+  color-scheme: light dark;
+  --color-background: #fff;
+  --color-text: #111;
+  --page-width-medium: 34.375rem;
   --page-width-large: 900px;
-  --margin-small: 1lh;
-  --margin-medium: 2lh;
-  --margin-large: 3lh;
+  --margin-small: 1rem;
+  --margin-medium: 2rem;
+  --margin-large: 3rem;
   --gap-small: 4px;
   --gap-medium: 1ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #1a1a1a;
+    --color-text: #e8e8e8;
+  }
 }
 
 *,
@@ -41,9 +48,10 @@ body {
   background: var(--color-background);
   font-weight: 400;
   font-style: normal;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-family: 'GeneralSans', sans-serif;
-  line-height: 28px;
+  line-height: 1.25rem;
+  letter-spacing: -0.00563rem;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -56,10 +64,9 @@ a {
   color: var(--color-text);
   text-decoration: underline;
   text-underline-offset: 2px;
-  text-decoration-color: var(--color-link);
-  transition: text-decoration-color 0.15s ease-out;
+  transition: opacity 0.15s ease-out;
 }
 
 a:hover {
-  text-decoration-color: var(--color-text);
+  opacity: 0.5;
 }

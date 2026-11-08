@@ -21,7 +21,7 @@ The site belongs to Wesley Klein — a portfolio and project showcase. The desig
 ## Architecture
 
 ### Routing
-- `src/pages/index.astro` — homepage with project list and discipline filter
+- `src/pages/index.astro` — homepage with project list
 - `src/pages/[slug].astro` — dynamic project pages, driven by content collection
 - `src/pages/404.astro` — not found page
 
@@ -39,15 +39,11 @@ Projects live in `src/content/projects/` as `.mdx` files. `src/content.config.ts
 Global CSS in `src/styles/global.css`. CSS custom properties for colors, widths, margins, gaps. Custom font: GeneralSans (400/500) served from `public/fonts/`.
 
 Key variables:
-- `--page-width-medium: 640px` — text content width
+- `--page-width-medium: 34.375rem` (550px) — text content width
 - `--page-width-large: 900px` — image group width
-- `--margin-small: 1lh`, `--margin-medium: 2lh`, `--margin-large: 3lh`
+- `--margin-small: 1rem`, `--margin-medium: 2rem`, `--margin-large: 3rem`
+
+Type scale is modeled on benji.org: 14px body (`0.875rem`), `1.25rem` line-height, slight negative letter-spacing.
 
 ### Images
 Stored in `src/assets/projects/` (processed by Astro/Sharp at build time). `ImageGroup.astro` resolves paths via `import.meta.glob` and uses Astro's `<Image>` component, which adds `width`/`height` attributes to prevent layout shift. Sharp is installed as a dependency for image processing.
-
-### Discipline filter
-The homepage filter is plain vanilla JS (inline `<script>` in `index.astro`). Clicking a filter button toggles `li.hidden` on project list items. No framework island needed.
-
-## Known deferred work
-- Filter animation (smooth fade + collapse) — attempted but removed due to bugs, left for later

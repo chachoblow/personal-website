@@ -6,14 +6,6 @@ import type { IconName } from '../components/icons'
 
 const projects = await getCollection('projects')
 
-const disciplines: { value: string; label: string; icon: IconName }[] = [
-  { value: 'software', label: 'software', icon: 'laptop' },
-  { value: 'object', label: 'object', icon: 'sphere' },
-  { value: 'sound', label: 'sound', icon: 'wave-sine' },
-  { value: 'image', label: 'image', icon: 'rectangle' },
-  { value: 'print', label: 'print', icon: 'book' },
-]
-
 const disciplineIconMap: Record<string, IconName> = {
   software: 'laptop',
   object: 'sphere',
@@ -21,11 +13,6 @@ const disciplineIconMap: Record<string, IconName> = {
   image: 'rectangle',
   print: 'book',
 }
-
-const contact = [
-  { label: 'wes@wesklein.com', href: 'mailto:wes@wesklein.com' },
-  { label: 'ofidlebits', href: 'https://www.instagram.com/ofidlebits/' },
-]
 ---
 
 <BaseLayout>
@@ -34,46 +21,26 @@ const contact = [
       <h1>Wesley Klein</h1>
     </header>
 
-    <section class="home__info" aria-label="About">
-      <p>A record and open sketchbook</p>
-    </section>
-
-    <section class="home__contact" aria-label="Contact">
-      <p>Based in the Bay Area</p>
-      <ul>
-        {contact.map(c => (
-          <li>
-            <a href={c.href} target="_blank" rel="noopener noreferrer">
-              {c.label}
-              <Icon name="arrow-up-right" size={12} aria-hidden="true" class="icon icon--sup" />
-            </a>
-          </li>
-        ))}
-      </ul>
+    <section class="home__intro" aria-label="Introduction">
+      <p>I live in the Bay Area, with my wife and daughter.</p>
+      <p>
+        My background is in mathematics and software engineering, but my interests tend to wander.
+        I like making things, understanding how things work, and finding interesting ways to bring
+        ideas into the physical world.
+      </p>
+      <p>I use this space to share things I'm working on and ideas I'm exploring.</p>
+      <p>
+        You can find me on <a href="https://www.instagram.com/ofidlebits/" target="_blank" rel="noopener noreferrer">Instagram</a>, or reach me via <a href="mailto:wes@wesklein.com">email</a>.
+      </p>
     </section>
 
     <section class="home__projects" aria-label="Projects">
       <div class="home__subheader">
         <h2>Projects</h2>
       </div>
-      <div class="home__disciplines">
-        {disciplines.map(d => (
-          <button
-            type="button"
-            data-filter={d.value}
-            onclick="toggleFilter(this)"
-          >
-            <Icon name={d.icon} size={16} aria-hidden="true" />
-            {d.label}
-          </button>
-        ))}
-      </div>
-      <ul id="project-list">
+      <ul>
         {projects.map(p => (
-          <li
-            class="project"
-            data-disciplines={p.data.disciplines.join(',')}
-          >
+          <li class="project">
             <div class="project__title">
               <a href={`/${p.id}`}>{p.data.title}</a>
               {p.data.disciplines.map(d => (
@@ -93,26 +60,6 @@ const contact = [
   </div>
 </BaseLayout>
 
-<script>
-  let activeFilter: string | null = null
-
-  function toggleFilter(btn: HTMLButtonElement) {
-    const value = btn.dataset.filter!
-    activeFilter = activeFilter === value ? null : value
-
-    document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(b => {
-      b.classList.toggle('active', b.dataset.filter === activeFilter)
-    })
-
-    document.querySelectorAll<HTMLLIElement>('#project-list .project').forEach(li => {
-      const disciplines = li.dataset.disciplines!.split(',')
-      li.hidden = activeFilter !== null && !disciplines.includes(activeFilter)
-    })
-  }
-
-  (window as any).toggleFilter = toggleFilter
-</script>
-
 <style>
   h1,
   h2 {
@@ -130,10 +77,6 @@ const contact = [
     vertical-align: middle;
   }
 
-  .icon--sup {
-    font-size: 0.75em;
-  }
-
   .home {
     width: min(var(--page-width-medium), 100%);
     margin-left: auto;
@@ -148,55 +91,20 @@ const contact = [
     margin-bottom: var(--margin-small);
   }
 
-  .home__info {
-    margin-bottom: var(--margin-small);
-  }
-
-  .home__contact {
+  .home__intro {
     margin-bottom: var(--margin-large);
   }
 
-  .home__disciplines {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-medium);
-    flex-wrap: wrap;
-    margin-bottom: var(--margin-medium);
+  .home__intro p + p {
+    margin-top: var(--margin-small);
   }
-
   .project + .project {
     margin-top: var(--margin-small);
   }
-
 
   .project__title {
     display: flex;
     align-items: center;
     gap: var(--gap-medium);
-  }
-
-  button {
-    cursor: pointer;
-    background: var(--color-background);
-    border: 1px solid var(--color-link);
-    border-radius: 40px;
-    padding: 4px 12px;
-    font-size: inherit;
-    font-family: inherit;
-    color: inherit;
-    transition:
-      background 0.2s ease-out,
-      color 0.2s ease-out;
-    display: flex;
-    align-items: center;
-    gap: var(--gap-medium);
-  }
-
-  button.active {
-    background: var(--color-link);
-  }
-
-  button:hover:not(.active) {
-    background: var(--color-link);
   }
 </style>

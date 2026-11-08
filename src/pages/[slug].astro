@@ -35,11 +35,9 @@ const disciplineIconMap: Record<string, IconName> = {
 
     <header>
       <h1>{entry.data.title}</h1>
-      <p class="disciplines">
-        {entry.data.disciplines.map(d => (
-          <Icon name={disciplineIconMap[d]} size={16} aria-hidden="true" />
-        ))}
-      </p>
+      {entry.data.disciplines.map(d => (
+        <Icon name={disciplineIconMap[d]} size={16} aria-hidden="true" />
+      ))}
     </header>
 
     <div class="content">
@@ -76,11 +74,10 @@ const disciplineIconMap: Record<string, IconName> = {
     margin-bottom: calc(var(--margin-medium) - var(--margin-small));
   }
 
-  .disciplines {
+  header {
     display: flex;
     align-items: center;
     gap: var(--gap-medium);
-    flex-wrap: wrap;
   }
 
   .project-view > .content {

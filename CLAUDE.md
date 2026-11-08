@@ -32,7 +32,8 @@ Projects live in `src/content/projects/` as `.mdx` files. `src/content.config.ts
 
 ### Components
 - `src/layouts/BaseLayout.astro` — wraps all pages, includes global CSS, accepts `title` and `description` props
-- `src/components/ImageGroup.astro` — images used in MDX, at most the text width (550px). Clicking one opens a full-screen view (a `<dialog>`, up to 2400px wide; without JS the link opens the image). Takes `images: { src: string, alt: string }[]` where `src` is a `/projects/...` path (resolved via `import.meta.glob` against `src/assets/projects/`)
+- `src/components/ImageGroup.astro` — images used in MDX, at most the text width (550px). Clicking one opens a full-screen view up to 2400px wide (without JS the link opens the image).
+- `src/components/Lightbox.astro` — the full-screen `<dialog>` viewer for ImageGroup. Only opens (and only shows the zoom-in cursor) when the full view would be at least 25% larger than the image on the page, so it does nothing on a phone in portrait. Included once at the end of project pages; keep its script out of ImageGroup, since an inline script between two groups breaks their adjacent-sibling spacing. Takes `images: { src: string, alt: string }[]` where `src` is a `/projects/...` path (resolved via `import.meta.glob` against `src/assets/projects/`)
 - `src/components/BackLink.astro` — the "↩ *Home*" link (icon + Gambetta italic), used on project pages and the 404 page
 - `src/components/Icon.astro` — inline SVG icons. Takes `name: IconName` (see `src/components/icons.ts` for valid values; currently only `arrow-u-up-left`, used in BackLink). Uses correct Phosphor regular-weight filled paths with `fill="currentColor"`
 

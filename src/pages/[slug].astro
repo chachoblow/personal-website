@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import BackLink from '../components/BackLink.astro'
 import ImageGroup from '../components/ImageGroup.astro'
+import Lightbox from '../components/Lightbox.astro'
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects')
@@ -30,6 +31,7 @@ const { Content } = await render(entry)
       <Content components={{ ImageGroup }} />
     </div>
   </div>
+  <Lightbox />
 </BaseLayout>
 
 <style>

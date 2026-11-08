@@ -75,9 +75,14 @@ a {
   color: var(--color-text);
   text-decoration: underline;
   text-underline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
   transition: opacity 0.15s ease-out;
 }
 
-a:hover {
-  opacity: 0.5;
+/* Touch screens treat a tap as a brief (sometimes sticky) hover, so only fade
+   links where there's a real pointer. */
+@media (hover: hover) {
+  a:hover {
+    opacity: 0.5;
+  }
 }

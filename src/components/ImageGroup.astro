@@ -23,11 +23,10 @@ const resolvedImages = await Promise.all(
     const loader = allImages[key];
     if (!loader) throw new Error(`ImageGroup: image not found at ${key}`);
     const meta = (await loader()).default;
-    const full = await getImage({
-      src: meta,
-      width: Math.min(meta.width, FULL_WIDTH),
-    });
-    return { src: meta, alt, full: full.src };
+    const full = await getImage({ src: meta, width: Math.min(meta.width, FULL_WIDTH) });
+    const fullWidth = Math.min(meta.width, FULL_WIDTH);
+    const fullHeight = Math.round((meta.height * fullWidth) / meta.width);
+    return { src: meta, alt, full: full.src, fullWidth, fullHeight };
   }),
 );
 ---
@@ -35,7 +34,13 @@ const resolvedImages = await Promise.all(
 <div class="images">
   {
     resolvedImages.map((img) => (
-      <a class="zoom" href={img.full} aria-label={`View full screen: ${img.alt}`}>
+      <a
+        class="zoom"
+        href={img.full}
+        data-width={img.fullWidth}
+        data-height={img.fullHeight}
+        aria-label={`View full screen: ${img.alt}`}
+      >
         <Image
           src={img.src}
           alt={img.alt}
@@ -47,39 +52,6 @@ const resolvedImages = await Promise.all(
     ))
   }
 </div>
-
-<script>
-  // Open images full screen in a modal; without JS the link opens the image itself.
-  let dialog: HTMLDialogElement | undefined;
-
-  function getDialog() {
-    if (dialog) return dialog;
-    dialog = document.createElement("dialog");
-    dialog.className = "lightbox";
-    dialog.innerHTML = "<img alt='' />";
-    dialog.addEventListener("click", () => dialog!.close());
-    document.body.append(dialog);
-    return dialog;
-  }
-
-  document.addEventListener("click", (event) => {
-    const link = (event.target as Element).closest<HTMLAnchorElement>("a.zoom");
-    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
-    event.preventDefault();
-    const d = getDialog();
-    const img = d.querySelector("img")!;
-    const thumb = link.querySelector("img");
-    // Show the already-loaded inline image while the full one loads.
-    img.src = thumb?.currentSrc || "";
-    img.alt = thumb?.alt || "";
-    const full = new Image();
-    full.onload = () => {
-      if (d.open) img.src = full.src;
-    };
-    full.src = link.href;
-    d.showModal();
-  });
-</script>
 
 <style>
   .images {
@@ -114,6 +86,11 @@ const resolvedImages = await Promise.all(
   .zoom {
     display: block;
     max-width: 100%;
+    cursor: default;
+  }
+
+  /* Set by Lightbox only when full screen would be noticeably larger */
+  .zoom.is-zoomable {
     cursor: zoom-in;
   }
 
@@ -128,36 +105,5 @@ const resolvedImages = await Promise.all(
     max-height: 70vh;
     object-fit: contain;
     display: block;
-  }
-
-  :global(.lightbox) {
-    width: 100vw;
-    height: 100dvh;
-    max-width: none;
-    max-height: none;
-    padding: var(--margin-small);
-    border: 0;
-    background: var(--color-background);
-    cursor: zoom-out;
-  }
-
-  :global(.lightbox[open]) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  :global(.lightbox)::backdrop {
-    background: var(--color-background);
-  }
-
-  :global(.lightbox img) {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-
-  :global(html:has(.lightbox[open])) {
-    overflow: hidden;
   }
 </style>

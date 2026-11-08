@@ -92,10 +92,17 @@ const projects = await getCollection('projects')
     transition: background-color 0.15s ease-out;
   }
 
-  .project:hover,
   .project:focus-visible {
-    opacity: 1;
     background-color: var(--color-hover);
+  }
+
+  /* Touch screens treat a tap as a brief hover, which flashes the background
+     on the way out, so only show it where there's a real pointer. */
+  @media (hover: hover) {
+    .project:hover {
+      opacity: 1;
+      background-color: var(--color-hover);
+    }
   }
 
   .project__title,

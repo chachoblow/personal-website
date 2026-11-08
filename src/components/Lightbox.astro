@@ -1,0 +1,104 @@
+---
+// Full-screen viewer for ImageGroup images (links with class "zoom").
+// Include once per page, after the content: an inline script between two
+// ImageGroups would break their adjacent-sibling spacing rules.
+---
+
+<script>
+  // Open images full screen in a modal; without JS the link opens the image itself.
+  // Only opens when the full-screen view would be noticeably larger than the
+  // image on the page (e.g. not on a phone in portrait, where they're the same).
+  const MIN_ENLARGEMENT = 1.25;
+  // Matches the dialog's padding below
+  const PADDING = 16;
+
+  let dialog: HTMLDialogElement | undefined;
+
+  function getDialog() {
+    if (dialog) return dialog;
+    dialog = document.createElement("dialog");
+    dialog.className = "lightbox";
+    dialog.innerHTML = "<img alt='' />";
+    dialog.addEventListener("click", () => dialog!.close());
+    document.body.append(dialog);
+    return dialog;
+  }
+
+  function wouldEnlarge(link: HTMLAnchorElement) {
+    const thumb = link.querySelector("img");
+    const fullWidth = Number(link.dataset.width);
+    const fullHeight = Number(link.dataset.height);
+    if (!thumb || !fullWidth || !fullHeight) return true;
+    const shown = thumb.getBoundingClientRect().width;
+    if (!shown) return false;
+    const availWidth = document.documentElement.clientWidth - 2 * PADDING;
+    const availHeight = window.innerHeight - 2 * PADDING;
+    const scale = Math.min(availWidth / fullWidth, availHeight / fullHeight, 1);
+    return fullWidth * scale >= shown * MIN_ENLARGEMENT;
+  }
+
+  function updateCursors() {
+    for (const link of document.querySelectorAll<HTMLAnchorElement>("a.zoom")) {
+      link.classList.toggle("is-zoomable", wouldEnlarge(link));
+    }
+  }
+
+  let frame = 0;
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(updateCursors);
+  });
+  updateCursors();
+
+  document.addEventListener("click", (event) => {
+    const link = (event.target as Element).closest<HTMLAnchorElement>("a.zoom");
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
+    event.preventDefault();
+    if (!wouldEnlarge(link)) return;
+    const d = getDialog();
+    const img = d.querySelector("img")!;
+    const thumb = link.querySelector("img");
+    // Show the already-loaded inline image while the full one loads.
+    img.src = thumb?.currentSrc || "";
+    img.alt = thumb?.alt || "";
+    const full = new Image();
+    full.onload = () => {
+      if (d.open) img.src = full.src;
+    };
+    full.src = link.href;
+    d.showModal();
+  });
+</script>
+
+<style is:global>
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    padding: 16px;
+    border: 0;
+    background: var(--color-background);
+    cursor: zoom-out;
+  }
+
+  .lightbox[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox::backdrop {
+    background: var(--color-background);
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  html:has(.lightbox[open]) {
+    overflow: hidden;
+  }
+</style>

@@ -105,6 +105,15 @@ const projects = await getCollection('projects')
     }
   }
 
+  /* Without hover there's no background to hint the rows are links, so
+     underline the titles like the site's other links. */
+  @media not (hover: hover) {
+    .project__title {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
   .project__title,
   .project__summary {
     display: block;

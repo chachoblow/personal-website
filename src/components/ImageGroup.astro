@@ -18,9 +18,10 @@ const allImages = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/projects/**/*",
 );
 
-// Inline images are at most the text column wide (550px); 2x for retina.
+// Inline images are at most the text column wide (550px); 2x for retina. 800
+// suits most phones, whose ~350px-wide images at 2x would otherwise get 1100.
 const INLINE_WIDTH = 550;
-const INLINE_WIDTHS = [INLINE_WIDTH, INLINE_WIDTH * 2];
+const INLINE_WIDTHS = [INLINE_WIDTH, 800, INLINE_WIDTH * 2];
 const SIZES = `(max-width: ${INLINE_WIDTH}px) 100vw, ${INLINE_WIDTH}px`;
 // Full-screen version: big enough for a large display, never upscaled.
 const FULL_WIDTH = 2400;

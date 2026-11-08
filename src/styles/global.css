@@ -69,9 +69,6 @@ body {
 }
 
 a {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
   color: var(--color-text);
   text-decoration: underline;
   text-underline-offset: 2px;

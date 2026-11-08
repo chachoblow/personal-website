@@ -27,19 +27,25 @@ import Icon from "./Icon.astro";
   const dialog = document.querySelector<HTMLDialogElement>("dialog.lightbox")!;
   dialog.addEventListener("click", () => dialog.close());
 
-  function wouldEnlarge(link: HTMLAnchorElement) {
-    const thumb = link.querySelector("img");
+  // Width (CSS px) the image would be shown at full screen, or 0 if unknown
+  function fullScreenWidth(link: HTMLAnchorElement) {
     const fullWidth = Number(link.dataset.width);
     const fullHeight = Number(link.dataset.height);
-    if (!thumb || !fullWidth || !fullHeight) return true;
+    if (!fullWidth || !fullHeight) return 0;
+    const availWidth = document.documentElement.clientWidth - 2 * PADDING;
+    const availHeight = window.innerHeight - 2 * PADDING;
+    return fullWidth * Math.min(availWidth / fullWidth, availHeight / fullHeight, 1);
+  }
+
+  function wouldEnlarge(link: HTMLAnchorElement) {
+    const thumb = link.querySelector("img");
+    const full = fullScreenWidth(link);
+    if (!thumb || !full) return true;
     const shown = thumb.getBoundingClientRect().width;
     // Not loaded yet, so no size: stay a link (lazy images further down must
     // stay focusable). It's checked again once the image has a size.
     if (!shown) return true;
-    const availWidth = document.documentElement.clientWidth - 2 * PADDING;
-    const availHeight = window.innerHeight - 2 * PADDING;
-    const scale = Math.min(availWidth / fullWidth, availHeight / fullHeight, 1);
-    return fullWidth * scale >= shown * MIN_ENLARGEMENT;
+    return full >= shown * MIN_ENLARGEMENT;
   }
 
   // A link that can't enlarge would do nothing when activated, so until it can,
@@ -84,12 +90,18 @@ import Icon from "./Icon.astro";
     // Show the already-loaded inline image while the full one loads.
     img.src = thumb?.currentSrc || "";
     img.alt = thumb?.alt || "";
+    // The browser picks the smallest size that's sharp at the shown width.
     const full = new Image();
     full.onload = () => {
-      if (dialog.open) img.src = full.src;
+      if (dialog.open) img.src = full.currentSrc || full.src;
     };
     const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    full.src = (reduceMotion && link.dataset.still) || link.href;
+    const srcset = (reduceMotion && link.dataset.stillSrcset) || link.dataset.srcset;
+    if (srcset) {
+      full.sizes = `${Math.ceil(fullScreenWidth(link))}px`;
+      full.srcset = srcset;
+    }
+    full.src = link.href;
     dialog.showModal();
     dialog.focus();
   });

@@ -24,6 +24,9 @@ const INLINE_WIDTHS = [INLINE_WIDTH, INLINE_WIDTH * 2];
 const SIZES = `(max-width: ${INLINE_WIDTH}px) 100vw, ${INLINE_WIDTH}px`;
 // Full-screen version: big enough for a large display, never upscaled.
 const FULL_WIDTH = 2400;
+// Smaller full-screen sizes, so smaller screens load less. Lightbox picks one
+// for the screen; 1100 is the inline 2x size, so it's already built.
+const FULL_WIDTHS = [1100, 1600];
 
 async function load(key: string) {
   return (await allImages[key]?.())?.default;
@@ -39,7 +42,8 @@ const resolvedImages = await Promise.all(
     const { width, height } = (meta as ImageMetadata & { clone: ImageMetadata }).clone;
     const fullWidth = Math.min(width, FULL_WIDTH);
     const fullHeight = Math.round((height * fullWidth) / width);
-    const full = await getImage({ src: meta, width: fullWidth });
+    const fullWidths = [...FULL_WIDTHS.filter((w) => w < fullWidth), fullWidth];
+    const full = await getImage({ src: meta, width: fullWidth, widths: fullWidths });
 
     // An animated GIF can have a still frame next to it, `<name>-still.webp`,
     // shown instead to people who ask their system to reduce motion.
@@ -49,16 +53,19 @@ const resolvedImages = await Promise.all(
     const stillInline = still
       ? await getImage({ src: still, widths: INLINE_WIDTHS, sizes: SIZES })
       : undefined;
-    const stillFull = still ? await getImage({ src: still, width: fullWidth }) : undefined;
+    const stillFull = still
+      ? await getImage({ src: still, width: fullWidth, widths: fullWidths })
+      : undefined;
 
     const eager = isFirstGroup && index === 0;
     return {
       alt,
       full: full.src,
+      fullSrcset: full.srcSet.attribute,
       fullWidth,
       fullHeight,
       stillSrcset: stillInline?.srcSet.attribute,
-      stillFull: stillFull?.src,
+      stillFullSrcset: stillFull?.srcSet.attribute,
       image: {
         src: meta,
         alt,
@@ -80,9 +87,10 @@ const resolvedImages = await Promise.all(
       <a
         class="zoom"
         href={img.full}
+        data-srcset={img.fullSrcset}
         data-width={img.fullWidth}
         data-height={img.fullHeight}
-        data-still={img.stillFull}
+        data-still-srcset={img.stillFullSrcset}
         aria-label={`View full screen: ${img.alt}`}
       >
         {img.stillSrcset ? (

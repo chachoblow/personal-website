@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import BackLink from '../components/BackLink.astro'
 ---
 
 <BaseLayout title="Not found — Wesley Klein">
   <div class="not-found">
     <p>Page not found.</p>
-    <a href="/">Home</a>
+    <BackLink />
   </div>
 </BaseLayout>
 
@@ -14,5 +15,9 @@ import BaseLayout from '../layouts/BaseLayout.astro'
     width: min(var(--page-width-medium), 100%);
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .not-found p {
+    margin-bottom: var(--margin-small);
   }
 </style>

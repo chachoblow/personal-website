@@ -1,9 +1,8 @@
 ---
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Icon from '../components/Icon.astro'
+import BackLink from '../components/BackLink.astro'
 import ImageGroup from '../components/ImageGroup.astro'
-import type { IconName } from '../components/icons'
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects')
@@ -15,29 +14,16 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props
 const { Content } = await render(entry)
-
-const disciplineIconMap: Record<string, IconName> = {
-  software: 'laptop',
-  object: 'sphere',
-  sound: 'wave-sine',
-  image: 'rectangle',
-  print: 'book',
-}
 ---
 
 <BaseLayout title={`${entry.data.title} — Wesley Klein`} description={entry.data.summary}>
   <div class="project-view">
     <nav aria-label="Breadcrumb">
-      <a href="/">Home</a>
-      <Icon name="arrow-arc-right" size={16} aria-hidden="true" />
-      <span>{entry.data.title}</span>
+      <BackLink />
     </nav>
 
     <header>
       <h1>{entry.data.title}</h1>
-      {entry.data.disciplines.map(d => (
-        <Icon name={disciplineIconMap[d]} size={16} aria-hidden="true" />
-      ))}
     </header>
 
     <div class="content">
@@ -68,16 +54,7 @@ const disciplineIconMap: Record<string, IconName> = {
   }
 
   nav {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-small);
     margin-bottom: calc(var(--margin-medium) - var(--margin-small));
-  }
-
-  header {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-medium);
   }
 
   .project-view > .content {

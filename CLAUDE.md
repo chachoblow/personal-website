@@ -28,15 +28,16 @@ The site belongs to Wesley Klein — a portfolio and project showcase. The desig
 ### Content
 Projects live in `src/content/projects/` as `.mdx` files. `src/content.config.ts` defines the Zod schema. Adding a project: create `src/content/projects/yourproject.mdx` with frontmatter (`title`, `summary`, `disciplines`) and MDX body. Drop images in `src/assets/projects/yourproject/`.
 
-**Disciplines** (used in frontmatter): `software`, `object`, `sound`, `image`, `print`
+**Disciplines** (used in frontmatter): `software`, `object`, `sound`, `image`, `print`. Required by the schema but not currently displayed anywhere.
 
 ### Components
 - `src/layouts/BaseLayout.astro` — wraps all pages, includes global CSS, accepts `title` and `description` props
 - `src/components/ImageGroup.astro` — flex grid of images, used in MDX. Takes `images: { src: string, alt: string }[]` where `src` is a `/projects/...` path (resolved via `import.meta.glob` against `src/assets/projects/`)
-- `src/components/Icon.astro` — inline SVG icons. Takes `name: IconName` (see `src/components/icons.ts` for valid values). Uses correct Phosphor regular-weight filled paths with `fill="currentColor"`
+- `src/components/BackLink.astro` — the "↩ *Home*" link (icon + Gambetta italic), used on project pages and the 404 page
+- `src/components/Icon.astro` — inline SVG icons. Takes `name: IconName` (see `src/components/icons.ts` for valid values; currently only `arrow-u-up-left`, used in BackLink). Uses correct Phosphor regular-weight filled paths with `fill="currentColor"`
 
 ### Styles
-Global CSS in `src/styles/global.css`. CSS custom properties for colors, widths, margins, gaps. Custom font: GeneralSans (400/500) served from `public/fonts/`.
+Global CSS in `src/styles/global.css`. CSS custom properties for colors, widths, margins, gaps. Custom fonts served from `public/fonts/`: GeneralSans (400/500) for everything, and Gambetta Italic (400, from Fontshare) only for the italic "Home" in BackLink.
 
 Key variables:
 - `--page-width-medium: 34.375rem` (550px) — text content width

@@ -14,10 +14,20 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Gambetta';
+  src: url('/fonts/Gambetta-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light dark;
   --color-background: #fff;
   --color-text: #111;
+  --color-text-secondary: #666;
+  --color-hover: rgb(0 0 0 / 0.04);
   --page-width-medium: 34.375rem;
   --page-width-large: 900px;
   --margin-small: 1rem;
@@ -31,6 +41,8 @@
   :root {
     --color-background: #1a1a1a;
     --color-text: #e8e8e8;
+    --color-text-secondary: #999;
+    --color-hover: rgb(255 255 255 / 0.05);
   }
 }
 

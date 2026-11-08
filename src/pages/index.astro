@@ -1,18 +1,8 @@
 ---
 import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Icon from '../components/Icon.astro'
-import type { IconName } from '../components/icons'
 
 const projects = await getCollection('projects')
-
-const disciplineIconMap: Record<string, IconName> = {
-  software: 'laptop',
-  object: 'sphere',
-  sound: 'wave-sine',
-  image: 'rectangle',
-  print: 'book',
-}
 ---
 
 <BaseLayout>
@@ -40,19 +30,11 @@ const disciplineIconMap: Record<string, IconName> = {
       </div>
       <ul>
         {projects.map(p => (
-          <li class="project">
-            <div class="project__title">
-              <a href={`/${p.id}`}>{p.data.title}</a>
-              {p.data.disciplines.map(d => (
-                <Icon
-                  name={disciplineIconMap[d]}
-                  size={16}
-                  aria-hidden="true"
-                  class="icon"
-                />
-              ))}
-            </div>
-            <p class="project__summary">{p.data.summary}</p>
+          <li>
+            <a class="project" href={`/${p.id}`}>
+              <span class="project__title">{p.data.title}</span>
+              <span class="project__summary">{p.data.summary}</span>
+            </a>
           </li>
         ))}
       </ul>
@@ -73,10 +55,6 @@ const disciplineIconMap: Record<string, IconName> = {
     margin: 0;
   }
 
-  .icon {
-    vertical-align: middle;
-  }
-
   .home {
     width: min(var(--page-width-medium), 100%);
     margin-left: auto;
@@ -88,7 +66,8 @@ const disciplineIconMap: Record<string, IconName> = {
   }
 
   .home__subheader {
-    margin-bottom: var(--margin-small);
+    /* Item padding adds 0.5rem above the first project */
+    margin-bottom: calc(var(--margin-small) - 0.5rem);
   }
 
   .home__intro {
@@ -98,13 +77,33 @@ const disciplineIconMap: Record<string, IconName> = {
   .home__intro p + p {
     margin-top: var(--margin-small);
   }
-  .project + .project {
-    margin-top: var(--margin-small);
+
+  /* The whole item is the link. Negative side margins keep the text aligned
+     with the rest of the page; the padding only shows as the hover background. */
+  .home__projects ul {
+    margin: 0 -0.75rem;
   }
 
-  .project__title {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-medium);
+  .project {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease-out;
+  }
+
+  .project:hover,
+  .project:focus-visible {
+    opacity: 1;
+    background-color: var(--color-hover);
+  }
+
+  .project__title,
+  .project__summary {
+    display: block;
+  }
+
+  .project__summary {
+    color: var(--color-text-secondary);
   }
 </style>

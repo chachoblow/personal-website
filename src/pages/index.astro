@@ -1,11 +1,18 @@
 ---
 import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import { previewImage } from '../lib/previewImage'
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order)
+// The link preview shows the top project's preview image
+const preview = await previewImage(projects[0]?.body)
 ---
 
-<BaseLayout description="Wesley Klein's projects and ideas: software, objects, sound, images and print.">
+<BaseLayout
+  description="Wesley Klein's projects and ideas: software, objects, sound, images and print."
+  image={preview?.image}
+  imageAlt={preview?.alt}
+>
   <div class="home">
     <header class="home__header">
       <h1>Wesley Klein</h1>
@@ -20,7 +27,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
       </p>
       <p>I use this space to share things I'm working on and ideas I'm exploring.</p>
       <p>
-        You can find me on <a href="https://www.instagram.com/ofidlebits/" target="_blank" rel="noopener noreferrer">Instagram</a>, or reach me via <a href="mailto:wes@wesklein.com">email</a>.
+        You can find me on <a href="https://www.instagram.com/ofidlebits/" target="_blank" rel="noopener noreferrer">Instagram<span class="visually-hidden"> (opens in a new tab)</span></a>, or reach me via <a href="mailto:wes@wesklein.com">email</a>.
       </p>
     </section>
 
@@ -31,7 +38,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
       <ul>
         {projects.map(p => (
           <li>
-            <a class="project" href={`/${p.id}`}>
+            <a class="project" href={`/${p.id}/`}>
               <span class="project__title">{p.data.title}</span>
               <span class="project__summary">{p.data.summary}</span>
             </a>

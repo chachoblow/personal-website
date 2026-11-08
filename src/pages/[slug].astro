@@ -1,10 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content'
-import type { ImageMetadata } from 'astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import BackLink from '../components/BackLink.astro'
 import ImageGroup from '../components/ImageGroup.astro'
 import Lightbox from '../components/Lightbox.astro'
+import { previewImage } from '../lib/previewImage'
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects')
@@ -17,19 +17,19 @@ export async function getStaticPaths() {
 const { entry } = Astro.props
 const { Content } = await render(entry)
 
-// The link preview shows the first image in the project (for an animated GIF,
-// its still frame if there is one).
-const allImages = import.meta.glob<{ default: ImageMetadata }>('/src/assets/projects/**/*')
-const firstSrc = entry.body?.match(/src:\s*['"]([^'"]+)['"]/)?.[1]
-const previewKey = firstSrc && `/src/assets${firstSrc}`
-const previewLoader =
-  previewKey && (allImages[previewKey.replace(/\.gif$/, '-still.webp')] ?? allImages[previewKey])
-const previewImage = previewLoader ? (await previewLoader()).default : undefined
+const preview = await previewImage(entry.body)
 ---
 
-<BaseLayout title={`${entry.data.title} — Wesley Klein`} description={entry.data.summary} image={previewImage}>
+<BaseLayout
+  title={`${entry.data.title} — Wesley Klein`}
+  description={entry.data.summary}
+  image={preview?.image}
+  imageAlt={preview?.alt}
+>
+  <!-- "Home" in BackLink is in view on load -->
+  <link slot="head" rel="preload" href="/fonts/Gambetta-Italic.woff2" as="font" type="font/woff2" crossorigin />
   <div class="project-view">
-    <nav aria-label="Breadcrumb">
+    <nav>
       <BackLink />
     </nav>
 

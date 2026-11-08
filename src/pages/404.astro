@@ -3,7 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import BackLink from '../components/BackLink.astro'
 ---
 
-<BaseLayout title="Not found — Wesley Klein">
+<BaseLayout title="Not found — Wesley Klein" noindex>
+  <link slot="head" rel="preload" href="/fonts/Gambetta-Italic.woff2" as="font" type="font/woff2" crossorigin />
   <div class="not-found">
     <p>Page not found.</p>
     <BackLink />

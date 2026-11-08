@@ -8,9 +8,12 @@ interface Props {
   description?: string
   /** Shown when the page is shared as a link */
   image?: ImageMetadata
+  imageAlt?: string
+  /** Keep the page out of search results (and give it no canonical URL) */
+  noindex?: boolean
 }
 
-const { title = 'Wesley Klein', description, image } = Astro.props
+const { title = 'Wesley Klein', description, image, imageAlt, noindex = false } = Astro.props
 
 const canonical = new URL(Astro.url.pathname, Astro.site)
 // JPEG, which every link preview supports
@@ -28,15 +31,22 @@ const previewUrl = preview && new URL(preview.src, Astro.site)
     <link rel="preload" href="/fonts/GeneralSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <!-- Medium is the page title -->
     <link rel="preload" href="/fonts/GeneralSans-Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <slot name="head" />
+    <!-- Match the browser's bars to the page background (see global.css) -->
+    <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Wesley Klein" />
     <meta property="og:title" content={title} />
-    <meta property="og:url" content={canonical} />
+    {!noindex && <meta property="og:url" content={canonical} />}
     {description && <meta property="og:description" content={description} />}
     {previewUrl && <meta property="og:image" content={previewUrl} />}
+    {preview && <meta property="og:image:width" content={String(preview.attributes.width)} />}
+    {preview && <meta property="og:image:height" content={String(preview.attributes.height)} />}
+    {previewUrl && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
     <meta name="twitter:card" content={previewUrl ? 'summary_large_image' : 'summary'} />
   </head>
   <body>

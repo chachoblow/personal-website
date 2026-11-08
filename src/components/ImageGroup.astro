@@ -8,25 +8,68 @@ interface Props {
 
 const { images } = Astro.props;
 
+// The first group's first image is usually in view on load, so it's fetched
+// right away instead of lazily. Claimed before any await, so groups claim it
+// in page order.
+const isFirstGroup = !Astro.locals.imageGroupRendered;
+Astro.locals.imageGroupRendered = true;
+
 const allImages = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/projects/**/*",
 );
 
 // Inline images are at most the text column wide (550px); 2x for retina.
-const INLINE_WIDTHS = [550, 1100];
+const INLINE_WIDTH = 550;
+const INLINE_WIDTHS = [INLINE_WIDTH, INLINE_WIDTH * 2];
+const SIZES = `(max-width: ${INLINE_WIDTH}px) 100vw, ${INLINE_WIDTH}px`;
 // Full-screen version: big enough for a large display, never upscaled.
 const FULL_WIDTH = 2400;
 
+async function load(key: string) {
+  return (await allImages[key]?.())?.default;
+}
+
 const resolvedImages = await Promise.all(
-  images.map(async ({ src, alt }) => {
+  images.map(async ({ src, alt }, index) => {
     const key = `/src/assets${src}`;
-    const loader = allImages[key];
-    if (!loader) throw new Error(`ImageGroup: image not found at ${key}`);
-    const meta = (await loader()).default;
-    const full = await getImage({ src: meta, width: Math.min(meta.width, FULL_WIDTH) });
-    const fullWidth = Math.min(meta.width, FULL_WIDTH);
-    const fullHeight = Math.round((meta.height * fullWidth) / meta.width);
-    return { src: meta, alt, full: full.src, fullWidth, fullHeight };
+    const meta = await load(key);
+    if (!meta) throw new Error(`ImageGroup: image not found at ${key}`);
+    // Read the size from Astro's copy: reading any field of `meta` itself
+    // makes Astro ship the (multi-megabyte) original file in the build.
+    const { width, height } = (meta as ImageMetadata & { clone: ImageMetadata }).clone;
+    const fullWidth = Math.min(width, FULL_WIDTH);
+    const fullHeight = Math.round((height * fullWidth) / width);
+    const full = await getImage({ src: meta, width: fullWidth });
+
+    // An animated GIF can have a still frame next to it, `<name>-still.webp`,
+    // shown instead to people who ask their system to reduce motion.
+    const still = key.endsWith(".gif")
+      ? await load(key.replace(/\.gif$/, "-still.webp"))
+      : undefined;
+    const stillInline = still
+      ? await getImage({ src: still, widths: INLINE_WIDTHS, sizes: SIZES })
+      : undefined;
+    const stillFull = still ? await getImage({ src: still, width: fullWidth }) : undefined;
+
+    const eager = isFirstGroup && index === 0;
+    return {
+      alt,
+      full: full.src,
+      fullWidth,
+      fullHeight,
+      stillSrcset: stillInline?.srcSet.attribute,
+      stillFull: stillFull?.src,
+      image: {
+        src: meta,
+        alt,
+        // Also sizes the fallback `src`, which would otherwise be full size
+        width: Math.min(width, INLINE_WIDTH),
+        widths: INLINE_WIDTHS,
+        sizes: SIZES,
+        loading: eager ? "eager" : "lazy",
+        fetchpriority: eager ? "high" : undefined,
+      } as const,
+    };
   }),
 );
 ---
@@ -39,15 +82,17 @@ const resolvedImages = await Promise.all(
         href={img.full}
         data-width={img.fullWidth}
         data-height={img.fullHeight}
+        data-still={img.stillFull}
         aria-label={`View full screen: ${img.alt}`}
       >
-        <Image
-          src={img.src}
-          alt={img.alt}
-          widths={INLINE_WIDTHS.filter((w) => w <= img.src.width)}
-          sizes="(max-width: 550px) 100vw, 550px"
-          loading="lazy"
-        />
+        {img.stillSrcset ? (
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset={img.stillSrcset} sizes={SIZES} />
+            <Image {...img.image} />
+          </picture>
+        ) : (
+          <Image {...img.image} />
+        )}
       </a>
     ))
   }
@@ -96,6 +141,10 @@ const resolvedImages = await Promise.all(
 
   .zoom:hover {
     opacity: 1;
+  }
+
+  .images picture {
+    display: contents;
   }
 
   .images img {

@@ -20,12 +20,12 @@ pnpm preview   # Preview the production build
 ├── public/              # Fonts, favicon — served as-is
 └── src/
     ├── assets/projects/ # Project images, processed at build time
-    ├── components/      # Icon.astro, ImageGroup.astro
+    ├── components/      # BackLink, Icon, ImageGroup, Lightbox
     ├── content/         # Projects as .mdx (schema in content.config.ts)
     ├── layouts/         # BaseLayout.astro
     ├── pages/           # index.astro, [slug].astro, 404.astro
     └── styles/          # global.css
 ```
 
-Adding a project: create `src/content/projects/<name>.mdx` with `title`, `summary`, and
-`disciplines` frontmatter, then drop its images in `src/assets/projects/<name>/`.
+Adding a project: create `src/content/projects/<name>.mdx` with `title`, `summary`,
+`disciplines` and `order` (homepage position) frontmatter, then drop its images in `src/assets/projects/<name>/`.

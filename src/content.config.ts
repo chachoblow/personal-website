@@ -9,6 +9,8 @@ const projects = defineCollection({
     disciplines: z.array(
       z.enum(['software', 'object', 'sound', 'image', 'print']),
     ),
+    /** Position on the homepage, lowest first */
+    order: z.number(),
   }),
 })
 

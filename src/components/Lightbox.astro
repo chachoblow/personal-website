@@ -2,7 +2,19 @@
 // Full-screen viewer for ImageGroup images (links with class "zoom").
 // Include once per page, after the content: an inline script between two
 // ImageGroups would break their adjacent-sibling spacing rules.
+import Icon from "./Icon.astro";
 ---
+
+<!-- Focused itself on open (tabindex), not the button: a focus moved by script
+     shows a focus ring even after a mouse click (Safari). Tab reaches the button.
+     Any click closes it; the button is there to show how. -->
+<dialog class="lightbox" aria-label="Full-screen image" tabindex="-1">
+  <button class="lightbox__close" type="button">
+    <Icon name="x" size={14} aria-hidden="true" />
+    <span class="nav-label">Close</span>
+  </button>
+  <img alt="" />
+</dialog>
 
 <script>
   // Open images full screen in a modal; without JS the link opens the image itself.
@@ -12,17 +24,8 @@
   // Matches the dialog's padding below
   const PADDING = 16;
 
-  let dialog: HTMLDialogElement | undefined;
-
-  function getDialog() {
-    if (dialog) return dialog;
-    dialog = document.createElement("dialog");
-    dialog.className = "lightbox";
-    dialog.innerHTML = "<img alt='' />";
-    dialog.addEventListener("click", () => dialog!.close());
-    document.body.append(dialog);
-    return dialog;
-  }
+  const dialog = document.querySelector<HTMLDialogElement>("dialog.lightbox")!;
+  dialog.addEventListener("click", () => dialog.close());
 
   function wouldEnlarge(link: HTMLAnchorElement) {
     const thumb = link.querySelector("img");
@@ -30,43 +33,65 @@
     const fullHeight = Number(link.dataset.height);
     if (!thumb || !fullWidth || !fullHeight) return true;
     const shown = thumb.getBoundingClientRect().width;
-    if (!shown) return false;
+    // Not loaded yet, so no size: stay a link (lazy images further down must
+    // stay focusable). It's checked again once the image has a size.
+    if (!shown) return true;
     const availWidth = document.documentElement.clientWidth - 2 * PADDING;
     const availHeight = window.innerHeight - 2 * PADDING;
     const scale = Math.min(availWidth / fullWidth, availHeight / fullHeight, 1);
     return fullWidth * scale >= shown * MIN_ENLARGEMENT;
   }
 
-  function updateCursors() {
+  // A link that can't enlarge would do nothing when activated, so until it can,
+  // drop its href and label: it's then a plain image that keyboard and screen
+  // reader users aren't offered as a link. Without JS it stays a link to the image.
+  function updateLinks() {
     for (const link of document.querySelectorAll<HTMLAnchorElement>("a.zoom")) {
-      link.classList.toggle("is-zoomable", wouldEnlarge(link));
+      const zoomable = wouldEnlarge(link);
+      link.classList.toggle("is-zoomable", zoomable);
+      if (zoomable && link.dataset.href) {
+        link.setAttribute("href", link.dataset.href);
+        link.setAttribute("aria-label", link.dataset.label ?? "");
+        delete link.dataset.href;
+        delete link.dataset.label;
+      } else if (!zoomable && link.hasAttribute("href")) {
+        link.dataset.href = link.getAttribute("href")!;
+        link.dataset.label = link.getAttribute("aria-label") ?? "";
+        link.removeAttribute("href");
+        link.removeAttribute("aria-label");
+      }
     }
   }
 
   let frame = 0;
-  window.addEventListener("resize", () => {
+  function scheduleUpdate() {
     cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(updateCursors);
-  });
-  updateCursors();
+    frame = requestAnimationFrame(updateLinks);
+  }
+  // Recheck when the window changes size, and when an image loads or resizes
+  window.addEventListener("resize", scheduleUpdate);
+  const observer = new ResizeObserver(scheduleUpdate);
+  for (const img of document.querySelectorAll("a.zoom img")) observer.observe(img);
+  updateLinks();
 
   document.addEventListener("click", (event) => {
-    const link = (event.target as Element).closest<HTMLAnchorElement>("a.zoom");
+    const link = (event.target as Element).closest<HTMLAnchorElement>("a.zoom[href]");
     if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
     event.preventDefault();
     if (!wouldEnlarge(link)) return;
-    const d = getDialog();
-    const img = d.querySelector("img")!;
+    const img = dialog.querySelector("img")!;
     const thumb = link.querySelector("img");
     // Show the already-loaded inline image while the full one loads.
     img.src = thumb?.currentSrc || "";
     img.alt = thumb?.alt || "";
     const full = new Image();
     full.onload = () => {
-      if (d.open) img.src = full.src;
+      if (dialog.open) img.src = full.src;
     };
-    full.src = link.href;
-    d.showModal();
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    full.src = (reduceMotion && link.dataset.still) || link.href;
+    dialog.showModal();
+    dialog.focus();
   });
 </script>
 
@@ -88,8 +113,37 @@
     justify-content: center;
   }
 
+  .lightbox:focus {
+    outline: none;
+  }
+
   .lightbox::backdrop {
     background: var(--color-background);
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-small);
+    padding: 0.25rem 0.5rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: var(--color-background);
+    color: var(--color-text);
+    font: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s ease-out;
+  }
+
+  /* Fades like the site's links */
+  @media (hover: hover) {
+    .lightbox__close:hover {
+      opacity: 0.5;
+    }
   }
 
   .lightbox img {

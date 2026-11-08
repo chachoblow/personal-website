@@ -4,19 +4,12 @@ import Icon from './Icon.astro'
 
 <a href="/">
   <Icon name="arrow-u-up-left" size={14} aria-hidden="true" />
-  <em>Home</em>
+  <em class="nav-label">Home</em>
 </a>
 
 <style>
   a {
     gap: var(--gap-small);
     text-decoration: none;
-  }
-
-  em {
-    font-family: 'Gambetta', serif;
-    font-style: italic;
-    /* Match GeneralSans's x-height (0.53 of the em) so the serif doesn't look small */
-    font-size-adjust: 0.53;
   }
 </style>

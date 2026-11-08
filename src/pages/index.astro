@@ -2,10 +2,10 @@
 import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const projects = await getCollection('projects')
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order)
 ---
 
-<BaseLayout>
+<BaseLayout description="Wesley Klein's projects and ideas: software, objects, sound, images and print.">
   <div class="home">
     <header class="home__header">
       <h1>Wesley Klein</h1>

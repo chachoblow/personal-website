@@ -1,12 +1,21 @@
 ---
+import { getImage } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
 import '../styles/global.css'
 
 interface Props {
   title?: string
   description?: string
+  /** Shown when the page is shared as a link */
+  image?: ImageMetadata
 }
 
-const { title = 'Wesley Klein', description } = Astro.props
+const { title = 'Wesley Klein', description, image } = Astro.props
+
+const canonical = new URL(Astro.url.pathname, Astro.site)
+// JPEG, which every link preview supports
+const preview = image && (await getImage({ src: image, width: 1200, format: 'jpg' }))
+const previewUrl = preview && new URL(preview.src, Astro.site)
 ---
 
 <html lang="en">
@@ -16,8 +25,17 @@ const { title = 'Wesley Klein', description } = Astro.props
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/GeneralSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Wesley Klein" />
+    <meta property="og:title" content={title} />
+    <meta property="og:url" content={canonical} />
+    {description && <meta property="og:description" content={description} />}
+    {previewUrl && <meta property="og:image" content={previewUrl} />}
+    <meta name="twitter:card" content={previewUrl ? 'summary_large_image' : 'summary'} />
   </head>
   <body>
     <main>

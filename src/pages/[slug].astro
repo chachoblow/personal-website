@@ -35,6 +35,17 @@ const preview = await previewImage(entry)
     type="font/woff2"
     crossorigin
   />
+  <!-- Lets ImageGroup hide lazy images until they load (set before the body
+       renders, so no image is shown and then hidden). imageLoaded is their
+       onload: one that arrives with the page (cached or fast) just appears,
+       and only a late one fades in, since only then was there a gap to cover. -->
+  <script slot="head" is:inline>
+    document.documentElement.classList.add('js')
+    window.imageLoaded = img => {
+      if (performance.now() > 200) img.classList.add('fade-in')
+      img.classList.add('is-loaded')
+    }
+  </script>
   <div class="project-view">
     <nav>
       <BackLink />

@@ -74,6 +74,13 @@ const resolvedImages = await Promise.all(
         sizes: SIZES,
         loading: eager ? 'eager' : 'lazy',
         fetchpriority: eager ? 'high' : undefined,
+        // Lazy images that load late fade in instead of popping in (see
+        // imageLoaded in [slug].astro, and the styles). The eager one shows at
+        // once, so the page isn't slower to appear. An inline handler is in
+        // place before the image can load, so none finishes unnoticed.
+        class: eager ? undefined : 'fade',
+        onload: eager ? undefined : 'imageLoaded(this)',
+        onerror: eager ? undefined : 'imageLoaded(this)',
       } as const,
     }
   }),
@@ -159,5 +166,25 @@ const resolvedImages = await Promise.all(
     max-height: 70vh;
     object-fit: contain;
     display: block;
+  }
+
+  /* Hidden until loaded only when JS is running (the project page's head sets
+     .js), so without it, images show as usual. An animation, not a transition,
+     so an image can only ever fade in, once. With reduced motion, images
+     appear at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .images img.fade:not(.is-loaded) {
+      opacity: 0;
+    }
+
+    .images img.fade-in {
+      animation: fade-in 0.3s ease-out;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
   }
 </style>

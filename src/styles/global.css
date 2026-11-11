@@ -45,6 +45,14 @@
   }
 }
 
+/* Crossfade between pages, done by the browser. Browsers without support just
+   navigate as usual. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
 *,
 *::before,
 *::after {

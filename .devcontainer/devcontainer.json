@@ -16,8 +16,11 @@
     // Claude Code's login and settings, shared by every container that mounts
     // this volume. Log in once with /login; it survives rebuilds.
     "source=claude-code-config,target=/root/.claude,type=volume",
-    // Git identity only. The gh credential helper isn't in the container, so
-    // pushing happens from the host.
+    // GitHub login for this repo only: a fine-grained token scoped to
+    // personal-website, entered once with `gh auth login`. Not the host's
+    // gh login, which stays out of the container.
+    "source=gh-config-personal-website,target=/root/.config/gh,type=volume",
+    // Git identity, plus the credential helper that sends git push through gh
     "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,readonly"
   ],
   "containerEnv": {

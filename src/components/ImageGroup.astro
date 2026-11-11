@@ -59,6 +59,9 @@ const resolvedImages = await Promise.all(
     const eager = isFirstGroup && index === 0
     return {
       alt,
+      // The link's size on the page, set before the image loads so its space
+      // is reserved instead of opening up when it arrives (see .zoom below)
+      style: `--width: ${Math.min(width, INLINE_WIDTH)}px; --ratio: ${width / height}`,
       full: full.src,
       fullSrcset: full.srcSet.attribute,
       fullWidth,
@@ -91,6 +94,7 @@ const resolvedImages = await Promise.all(
   {resolvedImages.map(img => (
     <a
       class="zoom"
+      style={img.style}
       href={img.full}
       data-srcset={img.fullSrcset}
       data-width={img.fullWidth}
@@ -140,9 +144,13 @@ const resolvedImages = await Promise.all(
     margin-top: 0;
   }
 
+  /* The size the image will show at: the column, its own width, or as wide as
+     fits 70vh tall, whichever is smallest. Set on the link rather than left to
+     the image, which has no size until it loads (its width/height attributes
+     only give it a ratio), so the page would grow as images arrive. */
   .zoom {
     display: block;
-    max-width: 100%;
+    width: min(100%, var(--width), 70vh * var(--ratio));
     cursor: default;
   }
 
@@ -159,12 +167,10 @@ const resolvedImages = await Promise.all(
     display: contents;
   }
 
+  /* Fills the link; the width/height attributes give the height before load */
   .images img {
-    width: auto;
-    max-width: 100%;
+    width: 100%;
     height: auto;
-    max-height: 70vh;
-    object-fit: contain;
     display: block;
   }
 

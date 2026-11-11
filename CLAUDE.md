@@ -64,4 +64,4 @@ Key variables:
 Type scale is modeled on benji.org: 14px body (`0.875rem`), `1.25rem` line-height, slight negative letter-spacing.
 
 ### Images
-Stored in `src/assets/projects/` (processed by Astro/Sharp at build time). `ImageGroup.astro` resolves paths via `import.meta.glob` and uses Astro's `<Image>` component, which adds `width`/`height` attributes to prevent layout shift. Sharp is installed as a dependency for image processing.
+Stored in `src/assets/projects/` (processed by Astro/Sharp at build time). `ImageGroup.astro` resolves paths via `import.meta.glob` and uses Astro's `<Image>` component, which adds `width`/`height` attributes. Those only give the image its ratio, so to reserve its space before it loads, each `a.zoom` gets its final width up front (inline `--width`/`--ratio`, smallest of column, image and 70vh tall) and the image fills it. Don't give the `img` `width: auto` again: until it loads it has no size, and the page grows as images arrive. Sharp is installed as a dependency for image processing.

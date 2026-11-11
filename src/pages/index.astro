@@ -5,7 +5,7 @@ import { previewImage } from '../lib/previewImage'
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order)
 // The link preview shows the top project's preview image
-const preview = await previewImage(projects[0]?.body)
+const preview = projects[0] && (await previewImage(projects[0]))
 ---
 
 <BaseLayout

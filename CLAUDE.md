@@ -8,9 +8,11 @@ Uses `pnpm` as the package manager.
 
 ```bash
 pnpm dev      # Start dev server (http://localhost:4321)
-pnpm build    # Build to dist/
+pnpm build    # Build to dist/, then check it (scripts/check-dist.mjs)
 pnpm preview  # Preview production build
 ```
+
+`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). It fails if an original image from `src/assets/projects/` was shipped (see the `meta.clone` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
 
 ## Project context
 
@@ -28,7 +30,7 @@ The site belongs to Wesley Klein — a portfolio and project showcase. The desig
 ### Content
 Projects live in `src/content/projects/` as `.mdx` files. `src/content.config.ts` defines the Zod schema. Adding a project: create `src/content/projects/yourproject.mdx` with frontmatter (`title`, `summary`, `disciplines`, `order`) and MDX body. `order` sets the homepage position, lowest first. Drop images in `src/assets/projects/yourproject/`. Everything in `src/assets/projects/` is built and deployed, so keep images no project uses elsewhere (e.g. `src/assets/unused/`).
 
-The first image in a project's MDX is also its link-preview image (`og:image`).
+The first image in a project's MDX is also its link-preview image (`og:image`). The build fails if a project has none, or if that image has no alt text.
 
 **Disciplines** (used in frontmatter): `software`, `object`, `sound`, `image`, `print`. Required by the schema but not currently displayed anywhere.
 
@@ -36,7 +38,7 @@ The first image in a project's MDX is also its link-preview image (`og:image`).
 - `src/layouts/BaseLayout.astro` — wraps all pages, includes global CSS, accepts `title`, `description`, `image` (link preview, converted to a 1200px JPEG), `imageAlt` and `noindex` (used by the 404 page: adds `robots noindex` and drops the canonical URL) props, plus a `head` slot for page-specific `<head>` tags (project and 404 pages use it to preload Gambetta). Adds canonical and Open Graph tags; `@astrojs/sitemap` generates the sitemap. `src/lib/previewImage.ts` finds a project's preview image and alt text; the homepage uses the top project's
 - Internal links end in `/` (e.g. `/beacon/`): GitHub Pages redirects `/beacon` to `/beacon/`, costing a round trip
 - `src/components/ImageGroup.astro` — images used in MDX, at most the text width (550px). Clicking one opens a full-screen view up to 2400px wide (without JS the link opens the image). The first image of the first group on a page loads eagerly. An animated `name.gif` can have a `name-still.webp` beside it, shown instead when the viewer prefers reduced motion. Read image sizes via `meta.clone`, never `meta.width` etc.: touching any field of an imported image makes Astro ship the original (the Beacon originals are 2–26 MB each).
-- `src/components/Lightbox.astro` — the full-screen `<dialog>` viewer for ImageGroup. Only opens (and only shows the zoom-in cursor) when the full view would be at least 25% larger than the image on the page, so it does nothing on a phone in portrait; there the links lose their `href` and label, so they aren't announced or focusable as links. Has a "× *Close*" button styled like BackLink (any click also closes it); the dialog itself, not the button, takes focus on open, so a mouse click shows no focus ring. Included once at the end of project pages; keep its script out of ImageGroup, since an inline script between two groups breaks their adjacent-sibling spacing. Takes `images: { src: string, alt: string }[]` where `src` is a `/projects/...` path (resolved via `import.meta.glob` against `src/assets/projects/`)
+- `src/components/Lightbox.astro` — the full-screen `<dialog>` viewer for ImageGroup. Only opens (and only shows the zoom-in cursor) when the full view would be at least 25% larger than the image on the page, so it does nothing on a phone in portrait; there the links lose their `href` and label, so they aren't announced or focusable as links. Has a "× *Close*" button styled like BackLink (any click also closes it); the dialog itself, not the button, takes focus on open, so a mouse click shows no focus ring. Included once at the end of project pages; keep its script out of ImageGroup, since an inline script between two groups breaks their adjacent-sibling spacing. Takes no props: it reads the `a.zoom` links ImageGroup renders, whose `data-*` attributes carry the full-screen srcset, size and still-frame srcset
 - `src/components/BackLink.astro` — the "↩ *Home*" link (icon + Gambetta italic), used on project pages and the 404 page
 - `src/components/Icon.astro` — inline SVG icons. Takes `name: IconName` (see `src/components/icons.ts` for valid values; currently `arrow-u-up-left`, used in BackLink, and `x`, used in Lightbox's Close button). Uses correct Phosphor regular-weight filled paths with `fill="currentColor"`
 

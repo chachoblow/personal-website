@@ -1,0 +1,28 @@
+{
+  "name": "personal-website",
+  "build": { "dockerfile": "Dockerfile" },
+
+  // Docker on devbox is rootless: root in the container is wesleyklein on the
+  // host, so files the container writes stay owned by you. A non-root
+  // container user would write files owned by uid 100xxx instead.
+  "remoteUser": "root",
+  "containerUser": "root",
+
+  // Astro's dev server, reachable from the Mac at http://devbox:4321.
+  // (appPort would publish on 127.0.0.1 only.)
+  "runArgs": ["--publish=4321:4321"],
+
+  "mounts": [
+    // Claude Code's login and settings, shared by every container that mounts
+    // this volume. Log in once with /login; it survives rebuilds.
+    "source=claude-code-config,target=/root/.claude,type=volume",
+    // Git identity only. The gh credential helper isn't in the container, so
+    // pushing happens from the host.
+    "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,readonly"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/root/.claude"
+  },
+
+  "postCreateCommand": "pnpm install --frozen-lockfile"
+}

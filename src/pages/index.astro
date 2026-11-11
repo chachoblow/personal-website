@@ -11,8 +11,8 @@ const preview = projects[0] && (await previewImage(projects[0]))
 
 // Each project's first images, roughly what's in view when it opens. The page
 // fetches them once it has loaded, so a project opens fully drawn and the
-// crossfade runs between two finished pages. About 270 KB for all projects.
-const PRELOAD_PER_PROJECT = 2
+// crossfade runs between two finished pages. About 360 KB for all projects.
+const PRELOAD_PER_PROJECT = 3
 const preloads = await Promise.all(
   projects.flatMap(project =>
     projectImages(project)
@@ -42,7 +42,7 @@ const images = preloads.filter(Boolean)
     </header>
 
     <section class="home__intro" aria-label="Introduction">
-      <p>I live in the Bay Area, with my wife and daughter.</p>
+      <p>I live in the Bay Area, with my wife, daughter and dog.</p>
       <p>
         My background is in mathematics and software engineering, but my interests tend to wander. I
         like making things, understanding how things work, and finding interesting ways to bring

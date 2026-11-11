@@ -31,7 +31,7 @@ The site belongs to Wesley Klein — a portfolio and project showcase. The desig
 ## Architecture
 
 ### Routing
-- `src/pages/index.astro` — homepage with project list. Once loaded and idle, it fetches the first 2 images of every project (about 270 KB; skipped under Save-Data), so a project opens fully drawn and the page crossfade runs between two finished pages
+- `src/pages/index.astro` — homepage with project list. Once loaded and idle, it fetches the first 3 images of every project (about 360 KB; skipped under Save-Data), so a project opens fully drawn and the page crossfade runs between two finished pages
 - `src/pages/[slug].astro` — dynamic project pages, driven by content collection
 - `src/pages/404.astro` — not found page
 

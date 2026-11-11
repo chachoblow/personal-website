@@ -1,64 +1,62 @@
 ---
-import { Image, getImage } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import { Image, getImage } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
 
 interface Props {
-  images: { src: string; alt: string }[];
+  images: { src: string; alt: string }[]
 }
 
-const { images } = Astro.props;
+const { images } = Astro.props
 
 // The first group's first image is usually in view on load, so it's fetched
 // right away instead of lazily. Claimed before any await, so groups claim it
 // in page order.
-const isFirstGroup = !Astro.locals.imageGroupRendered;
-Astro.locals.imageGroupRendered = true;
+const isFirstGroup = !Astro.locals.imageGroupRendered
+Astro.locals.imageGroupRendered = true
 
-const allImages = import.meta.glob<{ default: ImageMetadata }>(
-  "/src/assets/projects/**/*",
-);
+const allImages = import.meta.glob<{ default: ImageMetadata }>('/src/assets/projects/**/*')
 
 // Inline images are at most the text column wide (550px); 2x for retina. 800
 // suits most phones, whose ~350px-wide images at 2x would otherwise get 1100.
-const INLINE_WIDTH = 550;
-const INLINE_WIDTHS = [INLINE_WIDTH, 800, INLINE_WIDTH * 2];
-const SIZES = `(max-width: ${INLINE_WIDTH}px) 100vw, ${INLINE_WIDTH}px`;
+const INLINE_WIDTH = 550
+const INLINE_WIDTHS = [INLINE_WIDTH, 800, INLINE_WIDTH * 2]
+const SIZES = `(max-width: ${INLINE_WIDTH}px) 100vw, ${INLINE_WIDTH}px`
 // Full-screen version: big enough for a large display, never upscaled.
-const FULL_WIDTH = 2400;
+const FULL_WIDTH = 2400
 // Smaller full-screen sizes, so smaller screens load less. Lightbox picks one
 // for the screen; 1100 is the inline 2x size, so it's already built.
-const FULL_WIDTHS = [1100, 1600];
+const FULL_WIDTHS = [1100, 1600]
 
 async function load(key: string) {
-  return (await allImages[key]?.())?.default;
+  return (await allImages[key]?.())?.default
 }
 
 const resolvedImages = await Promise.all(
   images.map(async ({ src, alt }, index) => {
-    const key = `/src/assets${src}`;
-    const meta = await load(key);
-    if (!meta) throw new Error(`ImageGroup: image not found at ${key}`);
+    const key = `/src/assets${src}`
+    const meta = await load(key)
+    if (!meta) throw new Error(`ImageGroup: image not found at ${key}`)
     // Read the size from Astro's copy: reading any field of `meta` itself
     // makes Astro ship the (multi-megabyte) original file in the build.
-    const { width, height } = (meta as ImageMetadata & { clone: ImageMetadata }).clone;
-    const fullWidth = Math.min(width, FULL_WIDTH);
-    const fullHeight = Math.round((height * fullWidth) / width);
-    const fullWidths = [...FULL_WIDTHS.filter((w) => w < fullWidth), fullWidth];
-    const full = await getImage({ src: meta, width: fullWidth, widths: fullWidths });
+    const { width, height } = (meta as ImageMetadata & { clone: ImageMetadata }).clone
+    const fullWidth = Math.min(width, FULL_WIDTH)
+    const fullHeight = Math.round((height * fullWidth) / width)
+    const fullWidths = [...FULL_WIDTHS.filter(w => w < fullWidth), fullWidth]
+    const full = await getImage({ src: meta, width: fullWidth, widths: fullWidths })
 
     // An animated GIF can have a still frame next to it, `<name>-still.webp`,
     // shown instead to people who ask their system to reduce motion.
-    const still = key.endsWith(".gif")
-      ? await load(key.replace(/\.gif$/, "-still.webp"))
-      : undefined;
+    const still = key.endsWith('.gif')
+      ? await load(key.replace(/\.gif$/, '-still.webp'))
+      : undefined
     const stillInline = still
       ? await getImage({ src: still, widths: INLINE_WIDTHS, sizes: SIZES })
-      : undefined;
+      : undefined
     const stillFull = still
       ? await getImage({ src: still, width: fullWidth, widths: fullWidths })
-      : undefined;
+      : undefined
 
-    const eager = isFirstGroup && index === 0;
+    const eager = isFirstGroup && index === 0
     return {
       alt,
       full: full.src,
@@ -74,37 +72,35 @@ const resolvedImages = await Promise.all(
         width: Math.min(width, INLINE_WIDTH),
         widths: INLINE_WIDTHS,
         sizes: SIZES,
-        loading: eager ? "eager" : "lazy",
-        fetchpriority: eager ? "high" : undefined,
+        loading: eager ? 'eager' : 'lazy',
+        fetchpriority: eager ? 'high' : undefined,
       } as const,
-    };
+    }
   }),
-);
+)
 ---
 
 <div class="images">
-  {
-    resolvedImages.map((img) => (
-      <a
-        class="zoom"
-        href={img.full}
-        data-srcset={img.fullSrcset}
-        data-width={img.fullWidth}
-        data-height={img.fullHeight}
-        data-still-srcset={img.stillFullSrcset}
-        aria-label={`View full screen: ${img.alt}`}
-      >
-        {img.stillSrcset ? (
-          <picture>
-            <source media="(prefers-reduced-motion: reduce)" srcset={img.stillSrcset} sizes={SIZES} />
-            <Image {...img.image} />
-          </picture>
-        ) : (
+  {resolvedImages.map(img => (
+    <a
+      class="zoom"
+      href={img.full}
+      data-srcset={img.fullSrcset}
+      data-width={img.fullWidth}
+      data-height={img.fullHeight}
+      data-still-srcset={img.stillFullSrcset}
+      aria-label={`View full screen: ${img.alt}`}
+    >
+      {img.stillSrcset ? (
+        <picture>
+          <source media="(prefers-reduced-motion: reduce)" srcset={img.stillSrcset} sizes={SIZES} />
           <Image {...img.image} />
-        )}
-      </a>
-    ))
-  }
+        </picture>
+      ) : (
+        <Image {...img.image} />
+      )}
+    </a>
+  ))}
 </div>
 
 <style>

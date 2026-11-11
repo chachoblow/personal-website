@@ -28,9 +28,21 @@ const previewUrl = preview && new URL(preview.src, Astro.site)
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href="/fonts/GeneralSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/GeneralSans-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <!-- Medium is the page title -->
-    <link rel="preload" href="/fonts/GeneralSans-Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/GeneralSans-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <slot name="head" />
     <!-- Match the browser's bars to the page background (see global.css) -->
     <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />

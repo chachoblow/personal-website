@@ -2,7 +2,7 @@
 // Full-screen viewer for ImageGroup images (links with class "zoom").
 // Include once per page, after the content: an inline script between two
 // ImageGroups would break their adjacent-sibling spacing rules.
-import Icon from "./Icon.astro";
+import Icon from './Icon.astro'
 ---
 
 <!-- Focused itself on open (tabindex), not the button: a focus moved by script
@@ -20,91 +20,91 @@ import Icon from "./Icon.astro";
   // Open images full screen in a modal; without JS the link opens the image itself.
   // Only opens when the full-screen view would be noticeably larger than the
   // image on the page (e.g. not on a phone in portrait, where they're the same).
-  const MIN_ENLARGEMENT = 1.25;
+  const MIN_ENLARGEMENT = 1.25
   // Matches the dialog's padding below
-  const PADDING = 16;
+  const PADDING = 16
 
-  const dialog = document.querySelector<HTMLDialogElement>("dialog.lightbox")!;
-  dialog.addEventListener("click", () => dialog.close());
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.lightbox')!
+  dialog.addEventListener('click', () => dialog.close())
 
   // Width (CSS px) the image would be shown at full screen, or 0 if unknown
   function fullScreenWidth(link: HTMLAnchorElement) {
-    const fullWidth = Number(link.dataset.width);
-    const fullHeight = Number(link.dataset.height);
-    if (!fullWidth || !fullHeight) return 0;
-    const availWidth = document.documentElement.clientWidth - 2 * PADDING;
-    const availHeight = window.innerHeight - 2 * PADDING;
-    return fullWidth * Math.min(availWidth / fullWidth, availHeight / fullHeight, 1);
+    const fullWidth = Number(link.dataset.width)
+    const fullHeight = Number(link.dataset.height)
+    if (!fullWidth || !fullHeight) return 0
+    const availWidth = document.documentElement.clientWidth - 2 * PADDING
+    const availHeight = window.innerHeight - 2 * PADDING
+    return fullWidth * Math.min(availWidth / fullWidth, availHeight / fullHeight, 1)
   }
 
   function wouldEnlarge(link: HTMLAnchorElement) {
-    const thumb = link.querySelector("img");
-    const full = fullScreenWidth(link);
-    if (!thumb || !full) return true;
-    const shown = thumb.getBoundingClientRect().width;
+    const thumb = link.querySelector('img')
+    const full = fullScreenWidth(link)
+    if (!thumb || !full) return true
+    const shown = thumb.getBoundingClientRect().width
     // Not loaded yet, so no size: stay a link (lazy images further down must
     // stay focusable). It's checked again once the image has a size.
-    if (!shown) return true;
-    return full >= shown * MIN_ENLARGEMENT;
+    if (!shown) return true
+    return full >= shown * MIN_ENLARGEMENT
   }
 
   // A link that can't enlarge would do nothing when activated, so until it can,
   // drop its href and label: it's then a plain image that keyboard and screen
   // reader users aren't offered as a link. Without JS it stays a link to the image.
   function updateLinks() {
-    for (const link of document.querySelectorAll<HTMLAnchorElement>("a.zoom")) {
-      const zoomable = wouldEnlarge(link);
-      link.classList.toggle("is-zoomable", zoomable);
+    for (const link of document.querySelectorAll<HTMLAnchorElement>('a.zoom')) {
+      const zoomable = wouldEnlarge(link)
+      link.classList.toggle('is-zoomable', zoomable)
       if (zoomable && link.dataset.href) {
-        link.setAttribute("href", link.dataset.href);
-        link.setAttribute("aria-label", link.dataset.label ?? "");
-        delete link.dataset.href;
-        delete link.dataset.label;
-      } else if (!zoomable && link.hasAttribute("href")) {
-        link.dataset.href = link.getAttribute("href")!;
-        link.dataset.label = link.getAttribute("aria-label") ?? "";
-        link.removeAttribute("href");
-        link.removeAttribute("aria-label");
+        link.setAttribute('href', link.dataset.href)
+        link.setAttribute('aria-label', link.dataset.label ?? '')
+        delete link.dataset.href
+        delete link.dataset.label
+      } else if (!zoomable && link.hasAttribute('href')) {
+        link.dataset.href = link.getAttribute('href')!
+        link.dataset.label = link.getAttribute('aria-label') ?? ''
+        link.removeAttribute('href')
+        link.removeAttribute('aria-label')
       }
     }
   }
 
-  let frame = 0;
+  let frame = 0
   function scheduleUpdate() {
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(updateLinks);
+    cancelAnimationFrame(frame)
+    frame = requestAnimationFrame(updateLinks)
   }
   // Recheck when the window changes size, and when an image loads or resizes
-  window.addEventListener("resize", scheduleUpdate);
-  const observer = new ResizeObserver(scheduleUpdate);
-  for (const img of document.querySelectorAll("a.zoom img")) observer.observe(img);
-  updateLinks();
+  window.addEventListener('resize', scheduleUpdate)
+  const observer = new ResizeObserver(scheduleUpdate)
+  for (const img of document.querySelectorAll('a.zoom img')) observer.observe(img)
+  updateLinks()
 
-  document.addEventListener("click", (event) => {
-    const link = (event.target as Element).closest<HTMLAnchorElement>("a.zoom[href]");
-    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
-    event.preventDefault();
-    if (!wouldEnlarge(link)) return;
-    const img = dialog.querySelector("img")!;
-    const thumb = link.querySelector("img");
+  document.addEventListener('click', event => {
+    const link = (event.target as Element).closest<HTMLAnchorElement>('a.zoom[href]')
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return
+    event.preventDefault()
+    if (!wouldEnlarge(link)) return
+    const img = dialog.querySelector('img')!
+    const thumb = link.querySelector('img')
     // Show the already-loaded inline image while the full one loads.
-    img.src = thumb?.currentSrc || "";
-    img.alt = thumb?.alt || "";
+    img.src = thumb?.currentSrc || ''
+    img.alt = thumb?.alt || ''
     // The browser picks the smallest size that's sharp at the shown width.
-    const full = new Image();
+    const full = new Image()
     full.onload = () => {
-      if (dialog.open) img.src = full.currentSrc || full.src;
-    };
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const srcset = (reduceMotion && link.dataset.stillSrcset) || link.dataset.srcset;
-    if (srcset) {
-      full.sizes = `${Math.ceil(fullScreenWidth(link))}px`;
-      full.srcset = srcset;
+      if (dialog.open) img.src = full.currentSrc || full.src
     }
-    full.src = link.href;
-    dialog.showModal();
-    dialog.focus();
-  });
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const srcset = (reduceMotion && link.dataset.stillSrcset) || link.dataset.srcset
+    if (srcset) {
+      full.sizes = `${Math.ceil(fullScreenWidth(link))}px`
+      full.srcset = srcset
+    }
+    full.src = link.href
+    dialog.showModal()
+    dialog.focus()
+  })
 </script>
 
 <style is:global>

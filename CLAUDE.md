@@ -8,11 +8,15 @@ Uses `pnpm` as the package manager.
 
 ```bash
 pnpm dev      # Start dev server (http://localhost:4321)
-pnpm build    # Build to dist/, then check it (scripts/check-dist.mjs)
+pnpm build    # Type-check, build to dist/, then check dist/ (scripts/check-dist.mjs)
 pnpm preview  # Preview production build
+pnpm check    # Type-check only (astro check)
+pnpm format   # Format with Prettier (format:check to only check)
 ```
 
-`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). It fails if an original image from `src/assets/projects/` was shipped (see the `meta.clone` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
+`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). The build also fails on type errors. `check-dist` fails if an original image from `src/assets/projects/` was shipped (see the `meta.clone` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
+
+TypeScript is pinned to 6.x: `astro check` does not work with TypeScript 7 yet. Prettier skips `.md`/`.mdx` (prose). In `.astro` markup it can move a line break next to inline text, which adds or removes a visible space; the homepage intro's link paragraph is marked `<!-- prettier-ignore -->` for this reason.
 
 ## Project context
 

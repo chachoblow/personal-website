@@ -27,7 +27,14 @@ const preview = await previewImage(entry)
   imageAlt={preview?.alt}
 >
   <!-- "Home" in BackLink is in view on load -->
-  <link slot="head" rel="preload" href="/fonts/Gambetta-Italic.woff2" as="font" type="font/woff2" crossorigin />
+  <link
+    slot="head"
+    rel="preload"
+    href="/fonts/Gambetta-Italic.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
   <div class="project-view">
     <nav>
       <BackLink />
@@ -50,10 +57,6 @@ const preview = await previewImage(entry)
     font-weight: 500;
   }
 
-  p {
-    margin: 0;
-  }
-
   .project-view {
     display: flex;
     flex-direction: column;
@@ -74,13 +77,12 @@ const preview = await previewImage(entry)
     flex-direction: column;
     align-items: center;
     gap: var(--margin-small);
-    width: min(var(--page-width-medium), 100%);
   }
 
   .project-view > .content :global(p),
   .project-view > .content :global(ul) {
+    /* The column centers its children, so give text the full width */
     width: min(var(--page-width-medium), 100%);
-    margin: 0;
   }
 
   .project-view > .content :global(ul) {

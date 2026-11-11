@@ -1,0 +1,7 @@
+dist/
+.astro/
+public/
+pnpm-lock.yaml
+# Prose: formatting would rewrap it
+*.md
+*.mdx

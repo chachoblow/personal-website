@@ -1,11 +1,34 @@
 ---
 import { getCollection } from 'astro:content'
+import { getImage } from 'astro:assets'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { previewImage } from '../lib/previewImage'
+import { SIZES, inlineImage, loadImage, projectImages, stillPath } from '../lib/images'
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order)
 // The link preview shows the top project's preview image
 const preview = projects[0] && (await previewImage(projects[0]))
+
+// Each project's first images, roughly what's in view when it opens. The page
+// fetches them once it has loaded, so a project opens fully drawn and the
+// crossfade runs between two finished pages. About 270 KB for all projects.
+const PRELOAD_PER_PROJECT = 2
+const preloads = await Promise.all(
+  projects.flatMap(project =>
+    projectImages(project)
+      .slice(0, PRELOAD_PER_PROJECT)
+      .map(async ({ src }) => {
+        const image = src && (await loadImage(src))
+        if (!image) return undefined
+        const still = src.endsWith('.gif') ? await loadImage(stillPath(src)) : undefined
+        return {
+          srcset: (await getImage(inlineImage(image))).srcSet.attribute,
+          stillSrcset: still && (await getImage(inlineImage(still))).srcSet.attribute,
+        }
+      }),
+  ),
+)
+const images = preloads.filter(Boolean)
 ---
 
 <BaseLayout
@@ -48,6 +71,27 @@ const preview = projects[0] && (await previewImage(projects[0]))
       </ul>
     </section>
   </div>
+  <script is:inline define:vars={{ images, sizes: SIZES }}>
+    // Fetch each project's first images once this page is done and the browser
+    // is idle, skipped if the visitor asked to save data. Same srcset and sizes
+    // as on the project page, so the browser picks the same file and it's a
+    // cache hit there. (Safari has no requestIdleCallback; it waits a moment.)
+    window.preloadedImages = []
+    addEventListener('load', () => {
+      ;(window.requestIdleCallback ?? (run => setTimeout(run, 200)))(() => {
+        if (navigator.connection?.saveData) return
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+        for (const { srcset, stillSrcset } of images) {
+          const img = new Image()
+          img.fetchPriority = 'low'
+          img.sizes = sizes
+          img.srcset = (reduceMotion && stillSrcset) || srcset
+          // Kept, so the browser doesn't drop a download in progress
+          window.preloadedImages.push(img)
+        }
+      })
+    })
+  </script>
 </BaseLayout>
 
 <style>

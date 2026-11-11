@@ -32,7 +32,7 @@ Pages.
     ├── components/      # BackLink, Icon, ImageGroup, Lightbox
     ├── content/         # Projects as .mdx (schema in content.config.ts)
     ├── layouts/         # BaseLayout.astro
-    ├── lib/             # previewImage.ts (link-preview image)
+    ├── lib/             # images.ts (shared image helpers), previewImage.ts
     ├── pages/           # index.astro, [slug].astro, 404.astro
     └── styles/          # global.css
 ```

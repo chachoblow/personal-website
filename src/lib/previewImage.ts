@@ -1,7 +1,5 @@
-import type { ImageMetadata } from 'astro'
 import type { CollectionEntry } from 'astro:content'
-
-const allImages = import.meta.glob<{ default: ImageMetadata }>('/src/assets/projects/**/*')
+import { loadImage, projectImages, stillPath } from './images'
 
 /**
  * The link-preview image for a project: the first image in its MDX body (for
@@ -14,16 +12,11 @@ export async function previewImage(project: CollectionEntry<'projects'>) {
     throw new Error(`previewImage: project "${project.id}" ${reason}`)
   }
 
-  // The first image object, e.g. { src: '/projects/x/a.webp', alt: '…' },
-  // with its fields in either order
-  const image = project.body?.match(/\{[^{}]*\bsrc:[^{}]*\}/)?.[0]
-  const src = image?.match(/\bsrc:\s*(['"])(.*?)\1/)?.[2]
-  const alt = image?.match(/\balt:\s*(['"])(.*?)\1/)?.[2]
+  const { src, alt } = projectImages(project)[0] ?? {}
   if (!src) fail('has no image (expected an ImageGroup with { src, alt } in its MDX)')
   if (!alt) fail(`has no alt text for its first image, ${src}`)
 
-  const key = `/src/assets${src}`
-  const loader = allImages[key.replace(/\.gif$/, '-still.webp')] ?? allImages[key]
-  if (!loader) fail(`has a first image that doesn't exist: ${key}`)
-  return { image: (await loader!()).default, alt: alt! }
+  const image = (await loadImage(stillPath(src!))) ?? (await loadImage(src!))
+  if (!image) fail(`has a first image that doesn't exist: /src/assets${src}`)
+  return { image: image!, alt: alt! }
 }

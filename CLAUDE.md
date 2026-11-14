@@ -56,6 +56,8 @@ The first image in a project's MDX is also its link-preview image (`og:image`). 
 ### Styles
 Global CSS in `src/styles/global.css`. CSS custom properties for colors, widths, margins, gaps. Colors follow the system light/dark setting (`prefers-color-scheme`); there is no toggle. Pages crossfade on navigation via the browser's cross-document View Transitions (`@view-transition`, no JS). Both the crossfade and the image fade are off when the viewer prefers reduced motion. Custom fonts served from `public/fonts/` as WOFF2: GeneralSans (400/500, both preloaded; Medium is the page title) for everything, and Gambetta Italic (400, from Fontshare) only for small navigation words: "Home" in BackLink and "Close" in Lightbox, via the global `.nav-label` class.
 
+Links in text are underlined and fade to half opacity on hover; the homepage's project rows instead get a light background (`--color-hover`) on hover, with titles underlined only on touch screens. Hover effects apply only under `(hover: hover)`, so a tap on a phone doesn't leave one stuck. Keyboard focus is the browser's default focus ring everywhere: don't style `:focus-visible` per element (the faint hover background is too weak to show focus).
+
 Key variables:
 - `--page-width-medium: 34.375rem` (550px) — content width for text and images
 - `--margin-small: 1rem`, `--margin-medium: 2rem`, `--margin-large: 3rem`

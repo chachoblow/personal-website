@@ -131,7 +131,8 @@ const images = preloads.filter(Boolean)
   }
 
   /* The whole item is the link. Negative side margins keep the text aligned
-     with the rest of the page; the padding only shows as the hover background. */
+     with the rest of the page; the padding shows as the hover background, and
+     gives the keyboard focus ring (the browser's own) room around the text. */
   .home__projects ul {
     margin: 0 -0.75rem;
   }
@@ -142,10 +143,6 @@ const images = preloads.filter(Boolean)
     border-radius: 0.5rem;
     text-decoration: none;
     transition: background-color 0.15s ease-out;
-  }
-
-  .project:focus-visible {
-    background-color: var(--color-hover);
   }
 
   /* Touch screens treat a tap as a brief hover, which flashes the background

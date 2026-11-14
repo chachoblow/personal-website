@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Uses `pnpm` as the package manager.
 
 ```bash
-pnpm dev      # Start dev server (http://localhost:4321)
+pnpm dev      # Start dev server; open it at http://devbox:4321 (see below)
 pnpm build    # Type-check, build to dist/, then check dist/ (scripts/check-dist.mjs)
 pnpm preview  # Preview production build
 pnpm check    # Type-check only (astro check)
@@ -18,7 +18,7 @@ pnpm format   # Format with Prettier (format:check to only check)
 
 Pushing to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`) at https://www.wesklein.com (`public/CNAME`).
 
-Development happens in the dev container (`.devcontainer/`: Node, pnpm, git, gh, Claude Code). `astro.config.mjs` binds the dev server to all interfaces and allows the host `devbox`, so it is also reachable at http://devbox:4321. The config also turns on `prefetchAll`, which fetches a page when its link is hovered or focused.
+Development happens in the dev container (`.devcontainer/`: Node, pnpm, git, gh, Claude Code). Wesley views the site from a Mac (and phone), not from devbox, so give dev and preview URLs as http://devbox:4321, never `localhost`: inside the container, `localhost` is the container itself. `astro.config.mjs` binds the dev server to all interfaces and allows the host `devbox` (Vite rejects other hostnames, though IP addresses work), and the container publishes port 4321 on devbox. `pnpm preview` uses the same port, so stop `pnpm dev` first. The config also turns on `prefetchAll`, which fetches a page when its link is hovered or focused.
 
 TypeScript is pinned to 6.x: `astro check` does not work with TypeScript 7 yet. Prettier skips `.md`/`.mdx` (prose). In `.astro` markup it can move a line break next to inline text, which adds or removes a visible space; the homepage intro's link paragraph is marked `<!-- prettier-ignore -->` for this reason.
 

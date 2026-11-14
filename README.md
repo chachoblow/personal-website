@@ -8,7 +8,7 @@ Uses `pnpm`.
 
 ```sh
 pnpm install        # Install dependencies
-pnpm dev            # Dev server at localhost:4321
+pnpm dev            # Dev server at http://devbox:4321 (localhost:4321 on the machine running it)
 pnpm build          # Type-check, build to ./dist/, then check dist/
 pnpm preview        # Preview the production build
 pnpm check          # Type-check only

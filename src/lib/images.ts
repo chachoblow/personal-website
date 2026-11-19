@@ -20,11 +20,12 @@ export function stillPath(src: string) {
 }
 
 /**
- * An image's size, read from Astro's copy: reading any field of the image
- * itself makes Astro ship the (multi-megabyte) original file in the build.
+ * An image's size. Safe to read: Astro ships an image's (multi-megabyte)
+ * original file only if its `src` is read, so never read `image.src` here or
+ * anywhere else; pass the image itself to <Image> or getImage().
  */
 export function imageSize(image: ImageMetadata) {
-  const { width, height } = (image as ImageMetadata & { clone: ImageMetadata }).clone
+  const { width, height } = image
   return { width, height }
 }
 

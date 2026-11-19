@@ -17,6 +17,6 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends gh \
  && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g pnpm@10 @anthropic-ai/claude-code \
+RUN npm install -g pnpm@12 @anthropic-ai/claude-code \
  && pnpm config set --global store-dir /root/.pnpm-store \
  && npm cache clean --force

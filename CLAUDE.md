@@ -4,29 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-Uses `pnpm` as the package manager.
+Uses `pnpm` as the package manager; `packageManager` in `package.json` pins its version for the dev container (pnpm switches to it automatically) and CI.
 
 ```bash
 pnpm dev      # Start dev server; open it at http://devbox:4321 (see below)
+pnpm astro dev stop    # Stop it (also: status, logs)
 pnpm build    # Type-check, build to dist/, then check dist/ (scripts/check-dist.mjs)
 pnpm preview  # Preview production build
 pnpm check    # Type-check only (astro check)
 pnpm format   # Format with Prettier (format:check to only check)
 ```
 
-`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). The build also fails on type errors. `check-dist` fails if an original image from `src/assets/projects/` was shipped (see the `meta.clone` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
+`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). The build also fails on type errors. `check-dist` fails if an original image from `src/assets/projects/` was shipped (see the `src` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
 
 Pushing to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`) at https://www.wesklein.com (`public/CNAME`).
 
-Development happens in the dev container (`.devcontainer/`: Node, pnpm, git, gh, Claude Code). Wesley views the site from a Mac (and phone), not from devbox, so give dev and preview URLs as http://devbox:4321, never `localhost`: inside the container, `localhost` is the container itself. `astro.config.mjs` binds the dev server to all interfaces and allows the host `devbox` (Vite rejects other hostnames, though IP addresses work), and the container publishes port 4321 on devbox. `pnpm preview` uses the same port, so stop `pnpm dev` first. The config also turns on `prefetchAll`, which fetches a page when its link is hovered or focused.
+Development happens in the dev container (`.devcontainer/`: Node, pnpm, git, gh, Claude Code). Wesley views the site from a Mac (and phone), not from devbox, so give dev and preview URLs as http://devbox:4321, never `localhost`: inside the container, `localhost` is the container itself. `astro.config.mjs` binds the dev server to all interfaces and allows the host `devbox` (Vite rejects other hostnames, though IP addresses work), and the container publishes port 4321 on devbox. Run without a terminal (as Claude Code does), Astro 7 starts the dev server in the background and `pnpm dev` returns at once; `pnpm astro dev stop` stops it. `pnpm preview` uses the same port, so stop the dev server first. The config also turns on `prefetchAll`, which fetches a page when its link is hovered or focused.
 
-TypeScript is pinned to 6.x: `astro check` does not work with TypeScript 7 yet. Prettier skips `.md`/`.mdx` (prose). In `.astro` markup it can move a line break next to inline text, which adds or removes a visible space; the homepage intro's link paragraph is marked `<!-- prettier-ignore -->` for this reason.
+TypeScript is pinned to 6.x: `@astrojs/check` (0.9.12) supports only TypeScript 5 and 6. Prettier skips `.md`/`.mdx` (prose). In `.astro` markup it can move a line break next to inline text, which adds or removes a visible space; the homepage intro's link paragraph is marked `<!-- prettier-ignore -->` for this reason.
 
 ## Project context
 
-This is Wesley Klein's personal website, built with Astro 6 and MDX. It replaced an earlier Vue 3 + Vite version of the same site, which has been retired — this repository is the only version.
+This is Wesley Klein's personal website, built with Astro 7 and MDX. It replaced an earlier Vue 3 + Vite version of the same site, which has been retired — this repository is the only version.
 
 The site belongs to Wesley Klein — a portfolio and project showcase. The design is intentionally minimal ("a record and open sketchbook"). No CSS frameworks, no component libraries.
+
+Possible future work (hosting move, analytics) is in `TODO.md`.
 
 ## Architecture
 
@@ -48,7 +51,7 @@ The first image in a project's MDX is also its link-preview image (`og:image`). 
 
 ### Components
 - `src/layouts/BaseLayout.astro` — wraps all pages, includes global CSS, accepts `title`, `description`, `image` (link preview, converted to a 1200px JPEG), `imageAlt` and `noindex` (used by the 404 page: adds `robots noindex` and drops the canonical URL) props, plus a `head` slot for page-specific `<head>` tags (project and 404 pages use it to preload Gambetta). Adds canonical and Open Graph tags; `@astrojs/sitemap` generates the sitemap. `src/lib/previewImage.ts` finds a project's preview image and alt text; the homepage uses the top project's. Its `theme-color` metas hard-code the page background colors, so keep them in sync with `--color-background` in `global.css`
-- `src/components/ImageGroup.astro` — images used in MDX, at most the text width (550px). Clicking one opens a full-screen view up to 2400px wide (without JS the link opens the image). The first image of the first group on a page loads eagerly; the rest are lazy and hidden until loaded, then fade in only if they arrive more than 200 ms after the page opened; a cached or fast one just appears, since fading it in would read as a flicker. Their inline `onload` calls `imageLoaded`, defined by an inline script in the project page's head, which also sets `html.js`; they are hidden only under `html.js`, so without JS they show as usual. The eager image never fades, so the page isn't slower to appear. An animated `name.gif` can have a `name-still.webp` beside it, shown instead when the viewer prefers reduced motion. Read image sizes with `imageSize()` (via `meta.clone`), never `meta.width` etc.: touching any field of an imported image makes Astro ship the original (the Beacon originals are 2–26 MB each).
+- `src/components/ImageGroup.astro` — images used in MDX, at most the text width (550px). Clicking one opens a full-screen view up to 2400px wide (without JS the link opens the image). The first image of the first group on a page loads eagerly; the rest are lazy and hidden until loaded, then fade in only if they arrive more than 200 ms after the page opened; a cached or fast one just appears, since fading it in would read as a flicker. Their inline `onload` calls `imageLoaded`, defined by an inline script in the project page's head, which also sets `html.js`; they are hidden only under `html.js`, so without JS they show as usual. The eager image never fades, so the page isn't slower to appear. An animated `name.gif` can have a `name-still.webp` beside it, shown instead when the viewer prefers reduced motion. Never read an imported image's `src` (pass the image itself to `<Image>` or `getImage()`): Astro 7 ships the original file of any image whose `src` is read (the Beacon originals are 2–26 MB each). Its `width` and `height` are safe; `imageSize()` reads them.
 - `src/components/Lightbox.astro` — the full-screen `<dialog>` viewer for ImageGroup. Only opens (and only shows the zoom-in cursor) when the full view would be at least 25% larger than the image on the page, so it does nothing on a phone in portrait; there the links lose their `href` and label, so they aren't announced or focusable as links. Has a "× *Close*" button styled like BackLink (any click also closes it); the dialog itself, not the button, takes focus on open, so a mouse click shows no focus ring. Included once at the end of project pages; keep its script out of ImageGroup, since an inline script between two groups breaks their adjacent-sibling spacing. Takes no props: it reads the `a.zoom` links ImageGroup renders, whose `data-*` attributes carry the full-screen srcset, size and still-frame srcset
 - `src/components/BackLink.astro` — the "↩ *Home*" link (icon + Gambetta italic), used on project pages and the 404 page
 - `src/components/Icon.astro` — inline SVG icons. Takes `name: IconName` (see `src/components/icons.ts` for valid values; currently `arrow-u-up-left`, used in BackLink, and `x`, used in Lightbox's Close button). Uses correct Phosphor regular-weight filled paths with `fill="currentColor"`

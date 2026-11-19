@@ -1,7 +1,7 @@
 // Runs after `astro build` and fails it if the output has grown in a way
-// nobody would notice. ImageGroup reads image sizes via the undocumented
-// `meta.clone` so Astro doesn't ship the original files (some are 26 MB); if
-// an Astro upgrade changes that, the originals quietly reappear in dist/.
+// nobody would notice. Astro ships an image's original file (some are 26 MB)
+// whenever its `src` is read; a stray `.src`, or an Astro upgrade that tracks
+// images differently, would quietly bring the originals back into dist/.
 import { readdirSync, statSync } from 'node:fs'
 import { basename, extname, join } from 'node:path'
 

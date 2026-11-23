@@ -1,24 +1,24 @@
 @font-face {
-  font-family: 'GeneralSans';
-  src: url('/fonts/GeneralSans-Regular.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'GeneralSans';
-  src: url('/fonts/GeneralSans-Medium.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Gambetta';
-  src: url('/fonts/Gambetta-Italic.woff2') format('woff2');
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
   font-weight: 400;
-  font-style: italic;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -77,7 +77,7 @@ body {
   font-weight: 400;
   font-style: normal;
   font-size: 0.875rem;
-  font-family: 'GeneralSans', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   line-height: 1.25rem;
   letter-spacing: -0.00563rem;
   text-rendering: optimizeLegibility;
@@ -93,12 +93,12 @@ a {
   transition: opacity 0.15s ease-out;
 }
 
-/* The serif italic for small navigation words ("Home", "Close") */
+/* The monospace for small navigation words ("Home", "Close") */
 .nav-label {
-  font-family: 'Gambetta', serif;
-  font-style: italic;
-  /* Match GeneralSans's x-height (0.53 of the em) so the serif doesn't look small */
-  font-size-adjust: 0.53;
+  font-family: 'IBM Plex Mono', monospace;
+  /* Upright, though BackLink's label is an <em> */
+  font-style: normal;
+  letter-spacing: 0;
 }
 
 /* Touch screens treat a tap as a brief (sometimes sticky) hover, so only fade

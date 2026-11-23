@@ -1,0 +1,416 @@
+---
+// Eight Beacons as blocks on a ground plane, drawn in isometric projection,
+// each joined by a line to the server in the middle, which every message passes
+// through. Three of them press in turn: the sender lights at once, a line in its
+// color runs to the server and from there out to each of the others, and each
+// lights as its line arrives; the server flashes a neutral gray as it passes
+// the message on. Drawn in fine lines in the text color, so it works in dark
+// mode. Under reduced motion it holds the first press.
+
+const colors = [
+  '#ff5a4e',
+  '#ff9f1a',
+  '#f2c200',
+  '#2fbf6a',
+  '#22aee0',
+  '#3d6dff',
+  '#9b5cff',
+  '#ff5cc8',
+]
+// Which Beacons press, in order. Each gets a 5 s slot in the loop.
+const senders = [1, 6, 3]
+
+type Point = [number, number]
+
+// Positions on the ground, in grid units: a ring around the server, a little
+// uneven so it reads as drawn rather than plotted. 01 is at the top of the
+// drawing and the rest go clockwise.
+const center: Point = [6.5, 6.5]
+const radii = [5.9, 4.1, 5.5, 3.9, 6, 4.6, 5.2, 3.8]
+// Each one's turn off the even 45° spacing, in radians
+const nudges = [0.1, -0.22, -0.2, 0.18, -0.2, -0.18, 0.2, 0.28]
+const spots: Point[] = radii.map((r, i) => {
+  const a = (5 / 4) * Math.PI + (i / 8) * 2 * Math.PI + nudges[i]
+  return [center[0] + r * Math.cos(a), center[1] + r * Math.sin(a)]
+})
+const unit = 34
+
+// Isometric projection: x runs down-right, y down-left, z up
+const project = (x: number, y: number, z = 0): Point => [
+  (x - y) * Math.cos(Math.PI / 6) * unit,
+  ((x + y) * 0.5 - z) * unit,
+]
+const pts = (ps: Point[]) => ps.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')
+
+// A box standing on the ground: its three visible faces, and where a label
+// goes on its right or left
+const box = ([x, y]: Point, size: number, height: number) => {
+  const h = size / 2
+  const c = (dx: number, dy: number, z: number) => project(x + dx, y + dy, z)
+  return {
+    depth: x + y,
+    base: project(x, y),
+    top: [c(-h, -h, height), c(h, -h, height), c(h, h, height), c(-h, h, height)],
+    left: [c(-h, h, 0), c(h, h, 0), c(h, h, height), c(-h, h, height)],
+    right: [c(h, -h, 0), c(h, h, 0), c(h, h, height), c(h, -h, height)],
+    label: c(h, -h, 0),
+    labelLeft: c(-h, h, 0),
+  }
+}
+
+// Beacons 05–08, the left half of the ring, have their labels on the left,
+// away from the server and their lines
+const labelsLeft = [4, 5, 6, 7]
+const blocks = spots.map((spot, i) => {
+  const b = box(spot, 0.8, 1.1)
+  const flip = labelsLeft.includes(i)
+  return {
+    ...b,
+    i,
+    n: String(i + 1).padStart(2, '0'),
+    slot: senders.indexOf(i),
+    flip,
+    labelX: flip ? b.labelLeft[0] - 6 : b.label[0] + 6,
+    cueX: flip ? b.labelLeft[0] - 22 : b.label[0] + 20,
+    labelY: (flip ? b.labelLeft[1] : b.label[1]) + 4,
+  }
+})
+// The server: low and wide, so it doesn't read as another Beacon
+const server = box(center, 1.6, 0.35)
+
+const spokes = blocks.map(b => b.base)
+// Each press: one line from the sender to the server, then one from the
+// server to each of the others
+const signals = senders.flatMap((s, slot) => [
+  { slot, leg: 'out', from: blocks[s].base, to: server.base },
+  ...blocks.filter(b => b.i !== s).map(b => ({ slot, leg: 'in', from: server.base, to: b.base })),
+])
+const drawn = [...blocks].sort((a, b) => a.depth - b.depth)
+const front = drawn.filter(b => b.depth > server.depth)
+const back = drawn.filter(b => b.depth <= server.depth)
+
+// The ground: a plane under everything
+const groundSize = 13
+const ground = [
+  project(0, 0),
+  project(groundSize, 0),
+  project(groundSize, groundSize),
+  project(0, groundSize),
+]
+
+// Fit the view to the drawing
+const all = ground.concat(...blocks.map(b => b.top.concat(b.left, b.right)))
+const pad = 20
+const minX = Math.min(...all.map(p => p[0])) - pad
+const minY = Math.min(...all.map(p => p[1])) - pad
+// Extra room on the right for the labels there
+const w = Math.max(...all.map(p => p[0])) + pad + 30 - minX
+const hgt = Math.max(...all.map(p => p[1])) + pad - minY
+const faces = ['top', 'left', 'right'] as const
+---
+
+<svg
+  class="beacon-diagram"
+  viewBox={`${minX.toFixed(0)} ${minY.toFixed(0)} ${w.toFixed(0)} ${hgt.toFixed(0)}`}
+  role="img"
+  aria-label="Eight Beacons drawn as blocks around a server, each joined to it by a line. When one is pressed, a line in its color runs to the server and from there to each of the others, and they light up in that color; then another answers in its own."
+>
+  <polygon class="ground" points={pts(ground)} />
+
+  <g class="edges">
+    {spokes.map(([x, y]) => (
+      <line x1={x} y1={y} x2={server.base[0]} y2={server.base[1]} />
+    ))}
+  </g>
+
+  {signals.map(({ slot, leg, from, to }) => (
+    <line
+      class={`signal ${leg} slot-${slot}`}
+      x1={from[0]}
+      y1={from[1]}
+      x2={to[0]}
+      y2={to[1]}
+      pathLength="1"
+      style={`--color: ${colors[senders[slot]]}`}
+    />
+  ))}
+
+  {/* Back to front, so nearer boxes cover farther ones: the Beacons behind the
+      server, the server (null), then the Beacons in front of it */}
+  {[...back.map(b => ({ b })), { b: null }, ...front.map(b => ({ b }))].map(({ b }) =>
+    b ? (
+      <g>
+        {faces.map(f => (
+          <polygon class="face" points={pts(b[f])} />
+        ))}
+        {senders.map((s, slot) =>
+          faces.map(f => (
+            <polygon
+              class={`flash slot-${slot} ${s === b.i ? 'sender' : 'receiver'}`}
+              points={pts(b[f])}
+              style={`--color: ${colors[s]}`}
+            />
+          )),
+        )}
+        <polygon class="shade" points={pts(b.right)} />
+        {faces.map(f => (
+          <polygon class="outline" points={pts(b[f])} />
+        ))}
+        <text class={b.flip ? 'flip' : undefined} x={b.labelX} y={b.labelY}>
+          {b.n}
+        </text>
+        {b.slot >= 0 && (
+          <text class={`cue slot-${b.slot} ${b.flip ? 'flip' : ''}`} x={b.cueX} y={b.labelY}>
+            press
+          </text>
+        )}
+      </g>
+    ) : (
+      <g class="server">
+        {faces.map(f => (
+          <polygon class="face" points={pts(server[f])} />
+        ))}
+        {senders.map((_, slot) =>
+          faces.map(f => <polygon class={`flash slot-${slot} relay`} points={pts(server[f])} />),
+        )}
+        <polygon class="shade" points={pts(server.right)} />
+        {faces.map(f => (
+          <polygon class="outline" points={pts(server[f])} />
+        ))}
+      </g>
+    ),
+  )}
+</svg>
+
+<style>
+  .beacon-diagram {
+    display: block;
+    width: min(var(--page-width-medium), 100%);
+    height: auto;
+    margin: var(--margin-medium) auto;
+    overflow: visible;
+  }
+
+  .beacon-diagram .ground {
+    fill: none;
+    stroke: var(--color-text-secondary);
+    stroke-width: 0.75;
+    stroke-dasharray: 3 3;
+    stroke-opacity: 0.6;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Everything is drawn in the text color, in fine lines; tone comes from
+     a light shade on each box's right side (the light comes from the upper
+     left), and color only from the lights. */
+  .beacon-diagram .edges line {
+    stroke: currentColor;
+    stroke-width: 0.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Drawn over the face and any light, so a lit side is shaded too */
+  .beacon-diagram .shade {
+    fill: currentColor;
+    opacity: 0.1;
+  }
+
+  .beacon-diagram .face {
+    fill: var(--color-background);
+  }
+
+  .beacon-diagram .outline {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.6;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* A halo in the page color keeps the labels clear of the lines and
+     ground border behind them */
+  .beacon-diagram text {
+    fill: currentColor;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    stroke: var(--color-background);
+    stroke-width: 3;
+    stroke-linejoin: round;
+    paint-order: stroke;
+  }
+
+  /* Flat color: the shade drawn over it darkens the right face */
+  .beacon-diagram .flash {
+    fill: var(--color);
+    opacity: 0;
+  }
+
+  /* The server's light is neutral: it passes each color on */
+  .beacon-diagram .relay {
+    --color: #d4d1c9;
+  }
+
+  .beacon-diagram .signal {
+    stroke: var(--color);
+    stroke-width: 1;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    opacity: 0;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .beacon-diagram .flip {
+    text-anchor: end;
+  }
+
+  .beacon-diagram .cue {
+    opacity: 0;
+  }
+
+  /* Reduced motion: hold the first press, lines drawn and blocks lit */
+  .beacon-diagram .slot-0 {
+    opacity: 1;
+  }
+
+  /* One 15 s loop, a 5 s slot per press (1% = 0.15 s). The sender lights at
+     once, the line takes about a quarter second to reach the server and
+     another to reach the others, and each light rises fast and fades over
+     about 1.8 s, as the firmware's blink does. */
+  @media (prefers-reduced-motion: no-preference) {
+    .beacon-diagram .slot-0 {
+      opacity: 0;
+    }
+
+    /* Longhands only: the animation shorthand would reset the delay that
+       .slot-1 and .slot-2 set, and these rules are more specific, so every
+       press would play at once. */
+    .beacon-diagram :is(.flash, .signal, .cue) {
+      animation-duration: 15s;
+      animation-iteration-count: infinite;
+    }
+
+    .beacon-diagram .flash.sender {
+      animation-name: beacon-sender;
+    }
+
+    .beacon-diagram .flash.receiver {
+      animation-name: beacon-receiver;
+    }
+
+    .beacon-diagram .flash.relay {
+      animation-name: beacon-relay;
+    }
+
+    .beacon-diagram .signal.out {
+      animation-name: beacon-signal-out;
+    }
+
+    .beacon-diagram .signal.in {
+      animation-name: beacon-signal-in;
+    }
+
+    .beacon-diagram .cue {
+      animation-name: beacon-cue;
+    }
+
+    .beacon-diagram .slot-1 {
+      animation-delay: 5s;
+    }
+
+    .beacon-diagram .slot-2 {
+      animation-delay: 10s;
+    }
+  }
+
+  /* The server lights as the sender's line reaches it, and fades by the time
+     the others have lit */
+  @keyframes beacon-relay {
+    0%,
+    2.5% {
+      opacity: 0;
+    }
+    2.75% {
+      opacity: 1;
+    }
+    11%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes beacon-sender {
+    0%,
+    1% {
+      opacity: 0;
+    }
+    1.5% {
+      opacity: 1;
+    }
+    13.5%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes beacon-receiver {
+    0%,
+    4.5% {
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    17%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes beacon-signal-out {
+    0%,
+    1% {
+      opacity: 1;
+      stroke-dashoffset: 1;
+    }
+    2.75% {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+    12%,
+    100% {
+      opacity: 0;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes beacon-signal-in {
+    0%,
+    2.75% {
+      opacity: 1;
+      stroke-dashoffset: 1;
+    }
+    4.5% {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+    12%,
+    100% {
+      opacity: 0;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes beacon-cue {
+    0% {
+      opacity: 0;
+    }
+    0.5%,
+    18% {
+      opacity: 1;
+    }
+    21%,
+    100% {
+      opacity: 0;
+    }
+  }
+</style>

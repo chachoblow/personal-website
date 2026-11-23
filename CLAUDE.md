@@ -9,13 +9,13 @@ Uses `pnpm` as the package manager; `packageManager` in `package.json` pins its 
 ```bash
 pnpm dev      # Start dev server; open it at http://devbox:4321 (see below)
 pnpm astro dev stop    # Stop it (also: status, logs)
-pnpm build    # Type-check, build to dist/, then check dist/ (scripts/check-dist.mjs)
+pnpm build    # Check formatting, type-check, build to dist/, then check dist/ (scripts/check-dist.mjs)
 pnpm preview  # Preview production build
 pnpm check    # Type-check only (astro check)
 pnpm format   # Format with Prettier (format:check to only check)
 ```
 
-`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). The build also fails on type errors. `check-dist` fails if an original image from `src/assets/projects/` was shipped (see the `src` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
+`scripts/check-dist.mjs` runs after every build, locally and in CI (`withastro/action` runs `pnpm run build`). The build also fails on unformatted files (`prettier --check`, first; `pnpm format` fixes them) and on type errors. `check-dist` fails if an original image from `src/assets/projects/` was shipped (see the `src` note under ImageGroup) or if `dist/` passes 20 MB (it is about 3.6 MB).
 
 Pushing to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`) at https://www.wesklein.com (`public/CNAME`).
 

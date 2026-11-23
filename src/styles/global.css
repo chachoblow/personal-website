@@ -28,6 +28,8 @@
   --color-text: #111;
   --color-text-secondary: #666;
   --color-hover: rgb(0 0 0 / 0.04);
+  /* The outgoing-link arrow, filled with --color-text */
+  --link-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='56 56 144 144'%3E%3Cpath fill='%23111' d='M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z'/%3E%3C/svg%3E");
   --page-width-medium: 34.375rem;
   --margin-small: 1rem;
   --margin-medium: 2rem;
@@ -42,6 +44,7 @@
     --color-text: #e8e8e8;
     --color-text-secondary: #999;
     --color-hover: rgb(255 255 255 / 0.05);
+    --link-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='56 56 144 144'%3E%3Cpath fill='%23e8e8e8' d='M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z'/%3E%3C/svg%3E");
   }
 }
 
@@ -94,23 +97,23 @@ a {
 }
 
 /* Links that leave the site (web and email) end in an up-right arrow: Phosphor's
-   arrow-up-right, regular weight, cropped to its own bounds. As an empty
-   inline-block, its bottom sits on the text's baseline; it isn't underlined
-   and screen readers skip it. nowrap keeps it from breaking onto a line of its
-   own. */
-a:is([href^='http'], [href^='mailto:']) {
-  white-space: nowrap;
-}
-
+   arrow-up-right, regular weight, cropped to its own bounds. It's an empty
+   inline box, not an inline-block: the browser allows a line break after an
+   inline-block, so punctuation after the link could wrap onto a line of its
+   own, while an inline box adds no break. It's drawn as a background image
+   (--link-arrow, in the text color), not a mask, since some browsers don't
+   mask inline boxes. Its padding gives it width; its height is the font's
+   (IBM Plex's descent is 0.275em), so the image is drawn 0.275em up from the
+   bottom to sit on the baseline. It isn't underlined and screen readers skip
+   it. */
 a:is([href^='http'], [href^='mailto:'])::after {
   content: '';
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
+  padding-left: 0.5em;
   margin-left: 0.15em;
-  background-color: currentColor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='56 56 144 144'%3E%3Cpath d='M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z'/%3E%3C/svg%3E")
-    center / contain no-repeat;
+  background-image: var(--link-arrow);
+  background-repeat: no-repeat;
+  background-position: 0 calc(100% - 0.275em);
+  background-size: 0.5em 0.5em;
 }
 
 /* The monospace for small navigation words ("Home", "Close") */

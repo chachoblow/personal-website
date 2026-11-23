@@ -1,24 +1,25 @@
 ---
 // Eight Beacons as blocks on a ground plane, drawn in isometric projection,
 // each joined by a line to the server in the middle, which every message passes
-// through. Three of them press in turn: the sender lights at once, a line in its
+// through. Four of them press in turn: the sender lights at once, a line in its
 // color runs to the server and from there out to each of the others, and each
 // lights as its line arrives; the server flashes a neutral gray as it passes
 // the message on. Drawn in fine lines in the text color, so it works in dark
 // mode. Under reduced motion it holds the first press.
 
 const colors = [
-  '#ff5a4e',
-  '#ff9f1a',
-  '#f2c200',
-  '#2fbf6a',
-  '#22aee0',
-  '#3d6dff',
-  '#9b5cff',
-  '#ff5cc8',
+  '#ffbcb2',
+  '#f8c795',
+  '#f3e79c',
+  '#a7e2b6',
+  '#95dcfe',
+  '#b7d0ff',
+  '#d6c6ff',
+  '#fabbdf',
 ]
-// Which Beacons press, in order. Each gets a 5 s slot in the loop.
-const senders = [1, 6, 3]
+// Which Beacons press, in order: yellow, blue, red, purple. Each gets a 5 s
+// slot in the loop.
+const senders = [2, 5, 0, 6]
 
 type Point = [number, number]
 
@@ -272,7 +273,7 @@ const faces = ['top', 'left', 'right'] as const
     opacity: 1;
   }
 
-  /* One 15 s loop, a 5 s slot per press (1% = 0.15 s). The sender lights at
+  /* One 20 s loop, a 5 s slot per press (1% = 0.2 s). The sender lights at
      once, the line takes about a quarter second to reach the server and
      another to reach the others, and each light rises fast and fades over
      about 1.8 s, as the firmware's blink does. */
@@ -282,10 +283,10 @@ const faces = ['top', 'left', 'right'] as const
     }
 
     /* Longhands only: the animation shorthand would reset the delay that
-       .slot-1 and .slot-2 set, and these rules are more specific, so every
+       the later slots set, and these rules are more specific, so every
        press would play at once. */
     .beacon-diagram :is(.flash, .signal, .cue) {
-      animation-duration: 15s;
+      animation-duration: 20s;
       animation-iteration-count: infinite;
     }
 
@@ -320,19 +321,23 @@ const faces = ['top', 'left', 'right'] as const
     .beacon-diagram .slot-2 {
       animation-delay: 10s;
     }
+
+    .beacon-diagram .slot-3 {
+      animation-delay: 15s;
+    }
   }
 
   /* The server lights as the sender's line reaches it, and fades by the time
      the others have lit */
   @keyframes beacon-relay {
     0%,
-    2.5% {
+    1.875% {
       opacity: 0;
     }
-    2.75% {
+    2.0625% {
       opacity: 1;
     }
-    11%,
+    8.25%,
     100% {
       opacity: 0;
     }
@@ -340,13 +345,13 @@ const faces = ['top', 'left', 'right'] as const
 
   @keyframes beacon-sender {
     0%,
-    1% {
+    0.75% {
       opacity: 0;
     }
-    1.5% {
+    1.125% {
       opacity: 1;
     }
-    13.5%,
+    10.125%,
     100% {
       opacity: 0;
     }
@@ -354,13 +359,13 @@ const faces = ['top', 'left', 'right'] as const
 
   @keyframes beacon-receiver {
     0%,
-    4.5% {
+    3.375% {
       opacity: 0;
     }
-    5% {
+    3.75% {
       opacity: 1;
     }
-    17%,
+    12.75%,
     100% {
       opacity: 0;
     }
@@ -368,15 +373,15 @@ const faces = ['top', 'left', 'right'] as const
 
   @keyframes beacon-signal-out {
     0%,
-    1% {
+    0.75% {
       opacity: 1;
       stroke-dashoffset: 1;
     }
-    2.75% {
+    2.0625% {
       opacity: 1;
       stroke-dashoffset: 0;
     }
-    12%,
+    9%,
     100% {
       opacity: 0;
       stroke-dashoffset: 0;
@@ -385,15 +390,15 @@ const faces = ['top', 'left', 'right'] as const
 
   @keyframes beacon-signal-in {
     0%,
-    2.75% {
+    2.0625% {
       opacity: 1;
       stroke-dashoffset: 1;
     }
-    4.5% {
+    3.375% {
       opacity: 1;
       stroke-dashoffset: 0;
     }
-    12%,
+    9%,
     100% {
       opacity: 0;
       stroke-dashoffset: 0;
@@ -404,11 +409,11 @@ const faces = ['top', 'left', 'right'] as const
     0% {
       opacity: 0;
     }
-    0.5%,
-    18% {
+    0.375%,
+    13.5% {
       opacity: 1;
     }
-    21%,
+    15.75%,
     100% {
       opacity: 0;
     }

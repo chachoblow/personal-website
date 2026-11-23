@@ -59,9 +59,9 @@ const box = ([x, y]: Point, size: number, height: number) => {
   }
 }
 
-// Beacons 05–08, the left half of the ring, have their labels on the left,
-// away from the server and their lines
-const labelsLeft = [4, 5, 6, 7]
+// Beacons 05–08, the left half of the ring, and 01 at the top have their
+// labels on the left, away from the server and their lines
+const labelsLeft = [0, 4, 5, 6, 7]
 const blocks = spots.map((spot, i) => {
   const b = box(spot, 0.8, 1.1)
   const flip = labelsLeft.includes(i)

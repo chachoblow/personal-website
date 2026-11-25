@@ -110,6 +110,9 @@ a:is([href^='http'], [href^='mailto:'])::after {
   content: '';
   padding-left: 0.5em;
   margin-left: 0.15em;
+  /* A matching gap after it, so a following period or comma doesn't touch it.
+     A margin adds no line break, unlike an inline-block. */
+  margin-right: 0.15em;
   background-image: var(--link-arrow);
   background-repeat: no-repeat;
   background-position: 0 calc(100% - 0.275em);
